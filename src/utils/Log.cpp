@@ -16,8 +16,7 @@ void Log::init() noexcept
         s_mainLogger->set_level(spdlog::level::info);
 #endif
         s_mainLogger->set_pattern("[%T:%e] <%^%l%$> %v");
-        s_mainLogger->debug("Initialized logger");
-        LOG_DEBUG("Test");
+        s_mainLogger->trace("Initialized logger");
     }
     catch (const spdlog::spdlog_ex &ex)
     {

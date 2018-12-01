@@ -1,10 +1,8 @@
 #include "pch.h"
-#include "utils/Log.h"
+#include "application/Application.h"
 
 int main(int argc, char *argv[])
 {
-    std::cout << "oui!" << std::endl;
-    tk::Log::init();
-
+    tk::Application &appli = tk::Application::getInstance();
     return 0;
 }
