@@ -1,8 +1,7 @@
-#include "pchutils.h"
+#include "pch.h"
 
 int main(int argc, char *argv[])
 {
-    std::cout << "Oui !" << std::endl;
-    std::string a = "Test ! ";
+    std::cout << "oui!" << std::endl;
     return 0;
 }

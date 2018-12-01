@@ -7,10 +7,11 @@ project "Minecraft-3"
    cppdialect "C++14"
    files { "src/**.h", "src/**.hpp", "src/**.c", "src/**.cpp"}
 
-   pchheader "src/pchutils.h"
-   pchsource "src/pchutils.cpp"
+   pchheader "pch.h"
+   pchsource "pch.cpp"
    includedirs {
-       "src/",              -- Needed for precompiled headers
+       "src",              -- Needed for precompiled headers
+       "vendor/spdlog/include",
        "../../../../../../Dropbox/OpenGL/Libraries/Includes/*"
    }
 
