@@ -7,6 +7,7 @@
 #include <memory>
 #include <thread>
 #include <utility>
+#include <exception>
 
 // Data structures
 #include <string>
@@ -24,3 +25,6 @@
 // spdlog
 #include "spdlog/spdlog.h"
 #include "spdlog/sinks/stdout_color_sinks.h"
+
+// utils
+#include "utils/Log.h"
