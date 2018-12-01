@@ -1,0 +1,13 @@
+# Dirs
+.vscode/
+bin/
+obj/
+
+
+# Files
+.directory
+Makefile
+*.make
+*.vcxproj
+*.sln
+*.sh
