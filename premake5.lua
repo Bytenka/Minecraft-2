@@ -4,6 +4,7 @@ workspace "Minecraft-3"
 project "Minecraft-3"
    kind "ConsoleApp"
    language "C++"
+   cppdialect "C++14"
    files { "src/**.h", "src/**.hpp", "src/**.c", "src/**.cpp"}
 
    pchheader "src/pchutils.h"
