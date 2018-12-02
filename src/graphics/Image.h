@@ -21,7 +21,7 @@ class Image
     std::string m_imgPath;
     unsigned char *m_data = NULL;
 
-  private:
+  public:
     Image(const Image &) = delete;
     void operator=(const Image &) = delete;
 };
