@@ -1,23 +1,38 @@
 #pragma once
 
+#include "Window.h"
+
+#define WINDOW_NULL 0
+
 namespace tk
 {
+typedef unsigned long long WindowUID;
 class Application
 {
-  public:
-    inline static Application &getInstance()
-    {
-        static Application instance;
-        return instance;
-    }
+public:
+  inline static Application &getInstance()
+  {
+    static Application instance;
+    return instance;
+  }
 
-  private:
-    Application();
-    ~Application();
+  WindowUID createWindow(const std::string &title, unsigned width = 1280, unsigned height = 720);
+  void destroyWindow(WindowUID uid);
 
-  public:
-    Application(const Application &) = delete;
-    void operator=(const Application &) = delete;
+  inline void setMainWindow(WindowUID uid) noexcept { m_mainWindowUID = uid; }
+
+private:
+  std::vector<std::pair<WindowUID, std::unique_ptr<Window>>> m_windows;
+  WindowUID m_mainWindowUID = WINDOW_NULL;
+  WindowUID m_windowUIDCounter = 1;
+
+private:
+  Application();
+  ~Application();
+
+public:
+  Application(const Application &) = delete;
+  void operator=(const Application &) = delete;
 };
 } // namespace tk
 
