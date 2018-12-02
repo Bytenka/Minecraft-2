@@ -1,6 +1,7 @@
 #include "Window.h"
 
 #include "../utils/Exceptions.h"
+#include "../graphics/Image.h"
 
 namespace tk
 {
@@ -71,5 +72,24 @@ void Window::clear() const noexcept
 {
     glfwMakeContextCurrent(m_glfwWindow);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+void Window::setIcon(const std::string &imgPath)
+{
+    try
+    {
+        Image img(imgPath);
+
+        GLFWimage glfwImage;
+        glfwImage.width = img.getWidth();
+        glfwImage.height = img.getHeight();
+        glfwImage.pixels = img.getData();
+
+        glfwSetWindowIcon(m_glfwWindow, 1, &glfwImage);
+    }
+    catch (RuntimeException &e)
+    {
+        LOG_ERROR("Unable to set icon for window \"{}\": {}", m_title, e.what());
+    }
 }
 } // namespace tk

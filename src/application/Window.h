@@ -17,6 +17,7 @@ public:
   void update() const noexcept;
   void setClearColor(u_int8_t red, u_int8_t green, u_int8_t blue, u_int8_t alpha = 255) const noexcept;
   void clear() const noexcept;
+  void setIcon(const std::string &imgPath);
 
   inline unsigned getWidth() const noexcept { return m_width; }
   inline unsigned getHeight() const noexcept { return m_height; }
