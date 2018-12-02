@@ -16,8 +16,10 @@ public:
     return instance;
   }
 
+  void runLoop();
   WindowUID createWindow(const std::string &title, unsigned width = 1280, unsigned height = 720);
   void destroyWindow(WindowUID uid);
+  Window *getInternalWindow(WindowUID uid) noexcept;
 
   inline void setMainWindow(WindowUID uid) noexcept { m_mainWindowUID = uid; }
 
@@ -29,6 +31,8 @@ private:
 private:
   Application();
   ~Application();
+
+  std::vector<std::pair<WindowUID, std::unique_ptr<Window>>>::iterator getWindowFromUID(WindowUID uid);
 
 public:
   Application(const Application &) = delete;

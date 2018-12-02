@@ -34,7 +34,34 @@ Application::Application()
 Application::~Application()
 {
     LOG_INFO("Application terminating...");
+    m_windows.clear();
     glfwTerminate();
+}
+
+//public:
+
+void Application::runLoop()
+{
+    bool appShouldTerminate = m_windows.empty();
+    while (!appShouldTerminate)
+    {
+        for (int i = m_windows.size() - 1; i >= 0; i--)
+        {
+            auto &currentPair = m_windows[i];
+            auto &currentWindow = currentPair.second;
+            currentWindow->update();
+            currentWindow->clear();
+            currentWindow->draw();
+
+            if (currentWindow->shouldClose())
+            {
+                if (currentPair.first == m_mainWindowUID)
+                    appShouldTerminate = true;
+
+                m_windows.erase(m_windows.begin() + i);
+            }
+        }
+    }
 }
 
 WindowUID Application::createWindow(const std::string &title, unsigned width, unsigned height)
@@ -60,7 +87,7 @@ void Application::destroyWindow(WindowUID uid)
 {
     try
     {
-        if (uid == 0)
+        if (uid == WINDOW_NULL)
             throw RuntimeException("Window is null");
 
         if (uid == m_mainWindowUID)
@@ -72,15 +99,7 @@ void Application::destroyWindow(WindowUID uid)
         }
         else
         {
-            for (int i = m_windows.size() - 1; i >= 0; i--)
-            {
-                if (m_windows[i].first == uid)
-                {
-                    m_windows.erase(m_windows.begin() + i);
-                    return;
-                }
-            }
-            throw std::invalid_argument("Window is not in windows list");
+            m_windows.erase(getWindowFromUID(uid));
         }
     }
     catch (std::invalid_argument &e)
@@ -89,8 +108,38 @@ void Application::destroyWindow(WindowUID uid)
     }
     catch (RuntimeException &e)
     {
-        LOG_ERROR("Cannot destroy window: {}", e.what());
+        LOG_ERROR("Cannot destroy window with UID \"{}\": {}", uid, e.what());
     }
+}
+
+Window *Application::getInternalWindow(WindowUID uid) noexcept
+{
+    try
+    {
+        return getWindowFromUID(uid)->second.get();
+    }
+    catch (RuntimeException &e)
+    {
+        LOG_ERROR("Unable to find window with UID \"{}\"", uid);
+        return nullptr;
+    }
+}
+
+//private:
+
+std::vector<std::pair<WindowUID, std::unique_ptr<Window>>>::iterator Application::getWindowFromUID(WindowUID uid)
+{
+    auto it = std::find_if(
+        m_windows.begin(),
+        m_windows.end(),
+        [&](const std::pair<WindowUID, std::unique_ptr<Window>> &current) {
+            return current.first == uid;
+        });
+
+    if (it == m_windows.end())
+        throw RuntimeException("Window does not exist in window list");
+
+    return it;
 }
 
 } // namespace tk

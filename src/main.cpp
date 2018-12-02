@@ -6,13 +6,15 @@
 int main(int argc, char *argv[])
 {
     tk::Application &appli = tk::Application::getInstance();
-    tk::WindowUID w = appli.createWindow("Oui");
-    tk::WindowUID w2 = appli.createWindow("Oui2");
-    tk::WindowUID w3 = appli.createWindow("Oui3");
-    tk::WindowUID w4 = appli.createWindow("Oui4");
-    appli.setMainWindow(w);
-    appli.destroyWindow(w2);
-    appli.destroyWindow(0);
-    appli.destroyWindow(w);
+    tk::WindowUID mainWindow = appli.createWindow("Yaaaaa", 1280, 720);
+    tk::WindowUID mainWindow2 = appli.createWindow("Yaaaaa", 1280, 720);
+    tk::WindowUID mainWindow3 = appli.createWindow("Yaaaaa", 1280, 720);
+    tk::WindowUID mainWindow4 = appli.createWindow("Yaaaaa", 1280, 720);
+    appli.setMainWindow(mainWindow);
+
+    tk::Window *w = appli.getInternalWindow(mainWindow);
+
+    appli.runLoop();
+
     return 0;
 }
