@@ -1,6 +1,8 @@
 #pragma once
 #include "pch.h"
 
+#include <glad/glad.h>
+
 namespace tk
 {
 struct BlockData
@@ -48,16 +50,6 @@ struct Block
 	//inline bool operator==(const Block& rhs) { return block_name == rhs.block_name; }
 };
 
-enum BlockSide
-{
-	TOP = 0,
-	BOTTOM,
-	LEFT,
-	RIGHT,
-	FRONT,
-	BACK
-};
-
 namespace BlockDatas
 {
 extern const BlockData transparent;
@@ -77,4 +69,17 @@ extern const Block tnt;
 extern const Block diamond_ore;
 extern const Block bedrock;
 } // namespace Blocks
+
+enum BlockFace
+{
+	TOP = 0,
+	BOTTOM,
+	LEFT,
+	RIGHT,
+	FRONT,
+	BACK
+};
+
+// Access these using the enum above
+extern const std::array<std::array<GLfloat, 12>, 6> blockFaceCoordinates;
 } // namespace tk

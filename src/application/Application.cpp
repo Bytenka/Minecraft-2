@@ -4,6 +4,7 @@
 #include "../utils/Exceptions.h"
 
 #include "../graphics/Shader.h"
+#include "../world/ChunkMesh.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -45,6 +46,9 @@ Application::~Application()
 void Application::runLoop()
 {
     Shader s("res/shaders/default.vert", "res/shaders/default.frag");
+    ChunkMesh m;
+    m.addFace(Blocks::obsidian, BlockFace::FRONT, {0, 0, 0}, {0, 0, 0});
+
     bool appShouldTerminate = m_windows.empty();
     while (!appShouldTerminate)
     {
