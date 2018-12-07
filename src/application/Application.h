@@ -21,6 +21,9 @@ public:
   void destroyWindow(WindowUID uid);
   Window *getInternalWindow(WindowUID uid) noexcept;
 
+  void updateWindowSize(GLFWwindow *window, int width, int height);
+  void updateWindowCursorPosition(GLFWwindow *window, int xpos, int ypos);
+
   inline void setMainWindow(WindowUID uid) noexcept { m_mainWindowUID = uid; }
 
 private:
@@ -33,6 +36,7 @@ private:
   ~Application();
 
   std::vector<std::pair<WindowUID, std::unique_ptr<Window>>>::iterator getWindowFromUID(WindowUID uid);
+  std::vector<std::pair<WindowUID, std::unique_ptr<Window>>>::iterator getWindowFromGLFWwindow(GLFWwindow *window);
 
 public:
   Application(const Application &) = delete;

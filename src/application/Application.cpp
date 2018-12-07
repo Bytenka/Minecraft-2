@@ -3,6 +3,8 @@
 #include "../utils/Log.h"
 #include "../utils/Exceptions.h"
 
+#include "../graphics/Shader.h"
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -42,6 +44,7 @@ Application::~Application()
 
 void Application::runLoop()
 {
+    Shader s("res/shaders/default.vert", "res/shaders/default.frag");
     bool appShouldTerminate = m_windows.empty();
     while (!appShouldTerminate)
     {
@@ -125,6 +128,32 @@ Window *Application::getInternalWindow(WindowUID uid) noexcept
     }
 }
 
+void Application::updateWindowSize(GLFWwindow *window, int width, int height)
+{
+    try
+    {
+        auto it = getWindowFromGLFWwindow(window);
+        it->second->updateSize(width, height);
+    }
+    catch (RuntimeException &e)
+    {
+        LOG_ERROR("Could not update window size : {}", e.what());
+    }
+}
+
+void Application::updateWindowCursorPosition(GLFWwindow *window, int xpos, int ypos)
+{
+    try
+    {
+        auto it = getWindowFromGLFWwindow(window);
+        it->second->updateCursorPosition(xpos, ypos);
+    }
+    catch (RuntimeException &e)
+    {
+        LOG_ERROR("Could not update cursor position : {}", e.what());
+    }
+}
+
 //private:
 
 std::vector<std::pair<WindowUID, std::unique_ptr<Window>>>::iterator Application::getWindowFromUID(WindowUID uid)
@@ -138,6 +167,21 @@ std::vector<std::pair<WindowUID, std::unique_ptr<Window>>>::iterator Application
 
     if (it == m_windows.end())
         throw RuntimeException("Window does not exist in window list");
+
+    return it;
+}
+
+std::vector<std::pair<WindowUID, std::unique_ptr<Window>>>::iterator Application::getWindowFromGLFWwindow(GLFWwindow *window)
+{
+    auto it = std::find_if(
+        m_windows.begin(),
+        m_windows.end(),
+        [&](const std::pair<WindowUID, std::unique_ptr<Window>> &current) {
+            return (current.second->getGLFWwindow()) == window;
+        });
+
+    if (it == m_windows.end())
+        throw RuntimeException("Unable to find window in list from GLFW window");
 
     return it;
 }

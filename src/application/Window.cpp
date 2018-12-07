@@ -1,4 +1,5 @@
 #include "Window.h"
+#include "Application.h"
 
 #include "../utils/Exceptions.h"
 #include "../graphics/Image.h"
@@ -6,7 +7,7 @@
 namespace tk
 {
 Window::Window(const std::string &title, unsigned width, unsigned height)
-    : m_title(title), m_width(width), m_height(height)
+    : m_title(title), m_width(width), m_height(height), m_cursorPos({width / 2, height / 2})
 {
     // Current context infos for if somethings go wrong
     GLFWwindow *newWindow = glfwCreateWindow(width, height, title.c_str(), NULL, NULL);
@@ -19,9 +20,9 @@ Window::Window(const std::string &title, unsigned width, unsigned height)
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
         throw RuntimeException("Failed to initialize GLAD for window");
 
-    glfwSwapInterval(0);
-    //glfwSetFramebufferSizeCallback()
-    //glfwSetCursorPosCallback()
+    glfwSwapInterval(1);
+    glfwSetFramebufferSizeCallback(newWindow, framebuffer_size_callback);
+    glfwSetCursorPosCallback(newWindow, cursor_pos_callback);
 
     // Setting up OpenGL. Functions are safe to call in that configuration
     glViewport(0, 0, width, height);
@@ -49,12 +50,15 @@ Window::~Window()
 void Window::draw() const noexcept
 {
     glfwMakeContextCurrent(m_glfwWindow);
+
+    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
     glfwSwapBuffers(m_glfwWindow);
 }
 
-void Window::update() const noexcept
+void Window::update() noexcept
 {
     glfwMakeContextCurrent(m_glfwWindow);
+    m_cursorTravel = glm::dvec2(0);
     glfwPollEvents();
 }
 
@@ -91,5 +95,34 @@ void Window::setIcon(const std::string &imgPath)
     {
         LOG_ERROR("Unable to set icon for window \"{}\": {}", m_title, e.what());
     }
+}
+
+void Window::updateSize(int width, int height) noexcept
+{
+    m_width = width;
+    m_height = height;
+    glViewport(0, 0, width, height);
+}
+
+void Window::updateCursorPosition(double xpos, double ypos) noexcept
+{
+    glm::dvec2 newPos = {xpos, ypos};
+    m_cursorTravel = newPos - m_cursorPos;
+
+    m_cursorPos = newPos;
+}
+
+//--------------------------------------------------//
+
+// Callbacks
+void framebuffer_size_callback(GLFWwindow *window, int width, int height) noexcept
+{
+    if (width != 0 && height != 0)
+        Application::getInstance().updateWindowSize(window, width, height);
+}
+
+void cursor_pos_callback(GLFWwindow *window, double xpos, double ypos) noexcept
+{
+    Application::getInstance().updateWindowCursorPosition(window, xpos, ypos);
 }
 } // namespace tk

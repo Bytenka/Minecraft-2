@@ -2,8 +2,6 @@
 #include "application/Application.h"
 #include "application/Window.h"
 
-#include "graphics/Shader.h"
-
 int main(int argc, char *argv[])
 {
     tk::Application &appli = tk::Application::getInstance();
@@ -12,8 +10,6 @@ int main(int argc, char *argv[])
 
     tk::Window *w = appli.getInternalWindow(mainWindow);
     w->setIcon("res/icon.png");
-
-    tk::Shader oui("res/shaders/default.vert", "res/shaders/default.frag");
 
     appli.runLoop();
 
