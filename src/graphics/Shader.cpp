@@ -8,13 +8,7 @@ namespace tk
 Shader::Shader(const std::string &vertPath, const std::string &fragPath)
     : m_vertPath(vertPath), m_fragPath(fragPath)
 {
-    createShader(GL_VERTEX_SHADER);
-    createShader(GL_FRAGMENT_SHADER);
-
-    createProgram();
-
-    deleteShader(GL_VERTEX_SHADER);
-    deleteShader(GL_FRAGMENT_SHADER);
+    load();
 }
 
 Shader::~Shader()
@@ -24,7 +18,28 @@ Shader::~Shader()
 
 // public:
 
+void Shader::reload() noexcept
+{
+    LOG_DEBUG("Reloading shader \"{}, {}\"...", m_vertPath, m_fragPath);
+    deleteProgram();
+    load();
+}
+
 // private:
+
+void Shader::load()
+{
+    createShader(GL_VERTEX_SHADER);
+    createShader(GL_FRAGMENT_SHADER);
+
+    createProgram();
+
+    deleteShader(GL_VERTEX_SHADER);
+    deleteShader(GL_FRAGMENT_SHADER);
+
+    LOG_INFO("Loaded shader \"{}, {}\"", m_vertPath, m_fragPath);
+}
+
 void Shader::createShader(GLenum shaderType)
 {
     try
@@ -109,14 +124,14 @@ void Shader::createProgram()
     }
     catch (RuntimeException &e)
     {
-        LOG_ERROR("Could not create shader: {}", e.what());
+        LOG_ERROR("Could not create program shader: {}", e.what());
         throw;
     }
 
     m_shaderProgram = prog;
 }
 
-void Shader::deleteProgram()
+void Shader::deleteProgram() noexcept
 {
     glDeleteProgram(m_shaderProgram);
     //flushUniformCache();
