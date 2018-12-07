@@ -23,8 +23,9 @@ public:
 
   inline unsigned getWidth() const noexcept { return m_width; }
   inline unsigned getHeight() const noexcept { return m_height; }
-  inline GLFWwindow *getGLFWwindow() const noexcept { return m_glfwWindow; }
   inline const std::string &getTitle() const noexcept { return m_title; }
+  inline glm::dvec2 getCursorTravel() const noexcept { return m_cursorPos; }
+  inline GLFWwindow *getGLFWwindow() const noexcept { return m_glfwWindow; }
   inline bool shouldClose() const noexcept { return glfwWindowShouldClose(m_glfwWindow); }
 
 private:
