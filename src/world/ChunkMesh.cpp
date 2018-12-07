@@ -51,7 +51,7 @@ GLuint ChunkMesh::getVAO() noexcept
 
 void ChunkMesh::push() noexcept
 {
-    clear();
+    clearGL();
 
     glGenVertexArrays(1, &m_vao);
     glGenBuffers(1, &m_vboVert);
@@ -78,6 +78,17 @@ void ChunkMesh::push() noexcept
 
 void ChunkMesh::clear() noexcept
 {
+    m_vertCoords.clear();
+    m_textCoords.clear();
+    m_indices.clear();
+
+    m_indexOffset = 0;
+
+    clearGL();
+}
+
+void ChunkMesh::clearGL() noexcept
+{
     if (m_vao != 0)
     {
         glDeleteVertexArrays(1, &m_vao);
@@ -102,7 +113,6 @@ void ChunkMesh::clear() noexcept
         m_ebo = 0;
     }
 
-    m_indexOffset = 0;
     m_isUsable = false;
 }
 } // namespace tk

@@ -3,6 +3,7 @@
 #include "../utils/Log.h"
 #include "../utils/Exceptions.h"
 
+#include "../graphics/Camera.h"
 #include "../graphics/Shader.h"
 #include "../world/ChunkMesh.h"
 
@@ -45,9 +46,10 @@ Application::~Application()
 
 void Application::runLoop()
 {
+    //Camera cam;
     Shader s("res/shaders/default.vert", "res/shaders/default.frag");
-    ChunkMesh m;
-    m.addFace(Blocks::obsidian, BlockFace::FRONT, {0, 0, 0}, {0, 0, 0});
+    //ChunkMesh m;
+    //m.addFace(Blocks::obsidian, BlockFace::FRONT, {0, 0, 0}, {0, 0, 0});
 
     bool appShouldTerminate = m_windows.empty();
     while (!appShouldTerminate)
@@ -59,6 +61,11 @@ void Application::runLoop()
             currentWindow->update();
             currentWindow->clear();
             currentWindow->draw();
+
+            //cam.rotate(currentWindow->getCursorTravel());
+
+            //glBindVertexArray(m.getVAO());
+            //glDrawElements(GL_TRIANGLES, m.getVerticesCount(), GL_UNSIGNED_INT, (void *)0);
 
             if (currentWindow->shouldClose())
             {

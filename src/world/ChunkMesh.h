@@ -19,6 +19,7 @@ public:
 private:
   void push() noexcept;
   void clear() noexcept;
+  void clearGL() noexcept;
 
 private:
   std::vector<GLfloat> m_vertCoords;
