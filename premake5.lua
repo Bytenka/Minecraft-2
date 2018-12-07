@@ -32,5 +32,5 @@ project "Minecraft-3"
         defines { "NDEBUG" }
         optimize "On"
 
--- For some reason, I'm unable to build the glad.c file automatically, so
--- the script must be modified by removing forceInclude for this file
+    filter { "files:**.c" }
+        flags { "NoPCH" }
