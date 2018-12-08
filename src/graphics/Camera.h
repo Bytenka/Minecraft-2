@@ -8,10 +8,10 @@ namespace tk
 {
 class Camera
 {
-public:
+  public:
 	Camera(
-			glm::dvec3 position = glm::dvec3(0.0, 0.0, 0.0),
-			glm::dvec3 target = glm::dvec3(0.0, 0.0, -1.0));
+		glm::dvec3 position = glm::dvec3(0.0, 0.0, 0.0),
+		glm::dvec3 target = glm::dvec3(0.0, 0.0, -1.0));
 	~Camera(){};
 
 	void rotate(double pitch, double yaw);
@@ -26,7 +26,7 @@ public:
 	inline glm::dvec3 getRight() const { return m_right; }
 	inline glm::dvec3 getUp() const { return m_up; }
 
-private:
+  private:
 	glm::dvec3 m_position;
 	glm::dvec3 m_direction;
 
