@@ -1,3 +1,5 @@
+#include "pch.h"
+
 #include "ChunkMesh.h"
 
 #include "../utils/Exceptions.h"
@@ -72,6 +74,8 @@ void ChunkMesh::push() noexcept
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLfloat) * m_indices.size(), m_indices.data(), GL_STATIC_DRAW);
+
+	glBindVertexArray(0);
 
     m_isUsable = true;
 }
