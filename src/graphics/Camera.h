@@ -19,7 +19,7 @@ class Camera
 	inline void move(glm::dvec3 direction) { m_position += direction; };
 	inline void teleport(const glm::dvec3 &toLocation) { m_position = toLocation; };
 
-	inline glm::mat4 getView() const { return glm::lookAt(m_position, m_position + m_direction, glm::dvec3(0.0, 1.0, 0.0)); }
+	inline glm::mat4 getView() const { return glm::lookAt(m_position, m_position - m_direction, glm::dvec3(0.0, 1.0, 0.0)); }
 	inline glm::dvec3 getDirection() const { return m_direction; }
 	inline glm::dvec3 getForward() const { return m_forward; }
 	inline glm::dvec3 getPosition() const { return m_position; }
