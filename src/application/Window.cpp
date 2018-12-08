@@ -23,6 +23,7 @@ Window::Window(const std::string &title, unsigned width, unsigned height)
     glfwSwapInterval(1);
     glfwSetFramebufferSizeCallback(newWindow, framebuffer_size_callback);
     glfwSetCursorPosCallback(newWindow, cursor_pos_callback);
+    // @TODO glfwSetWindowFocusCallback()
 
     // Setting up OpenGL. Functions are safe to call in that configuration
     glViewport(0, 0, width, height);
@@ -37,6 +38,8 @@ Window::Window(const std::string &title, unsigned width, unsigned height)
 
     m_glfwWindow = newWindow;
     setClearColor(0, 127, 127);
+
+    useMouseAsInput(true);
 
     LOG_INFO("Created new window \"{}\" ({}, {})", m_title, m_width, m_height);
 }
@@ -109,7 +112,28 @@ void Window::updateCursorPosition(double xpos, double ypos) noexcept
     glm::dvec2 newPos = {xpos, ypos};
     m_cursorTravel = newPos - m_cursorPos;
 
+    if (m_mouseIsInput)
+    {
+        newPos = {m_width / 2.0, m_height / 2.0};
+        glfwSetCursorPos(m_glfwWindow, newPos.x, newPos.y);
+    }
+
     m_cursorPos = newPos;
+}
+
+void Window::useMouseAsInput(bool value) noexcept
+{
+    if (value)
+    {
+        //glfwSetInputMode(m_glfwWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        updateCursorPosition(m_width / 2.0, m_height / 2.0);
+    }
+    else
+    {
+        glfwSetInputMode(m_glfwWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    }
+
+    m_mouseIsInput = value;
 }
 
 //--------------------------------------------------//

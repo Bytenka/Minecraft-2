@@ -20,11 +20,12 @@ public:
   void setIcon(const std::string &imgPath);
   void updateSize(int width, int height) noexcept;
   void updateCursorPosition(double xpos, double ypos) noexcept;
+  void useMouseAsInput(bool value) noexcept;
 
   inline unsigned getWidth() const noexcept { return m_width; }
   inline unsigned getHeight() const noexcept { return m_height; }
   inline const std::string &getTitle() const noexcept { return m_title; }
-  inline glm::dvec2 getCursorTravel() const noexcept { return m_cursorPos; }
+  inline glm::dvec2 getCursorTravel() const noexcept { return m_mouseIsInput ? m_cursorTravel : glm::dvec2(0); }
   inline GLFWwindow *getGLFWwindow() const noexcept { return m_glfwWindow; }
   inline bool shouldClose() const noexcept { return glfwWindowShouldClose(m_glfwWindow); }
 
@@ -34,6 +35,7 @@ private:
   glm::dvec2 m_cursorPos;
 
   GLFWwindow *m_glfwWindow;
+  bool m_mouseIsInput;
   glm::dvec2 m_cursorTravel; // Distance moved by the cursor between calls of update()
 
 public:

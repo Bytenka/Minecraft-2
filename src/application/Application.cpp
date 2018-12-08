@@ -46,10 +46,45 @@ Application::~Application()
 
 void Application::runLoop()
 {
-    //Camera cam;
-    Shader s("res/shaders/default.vert", "res/shaders/default.frag");
-    //ChunkMesh m;
-    //m.addFace(Blocks::obsidian, BlockFace::FRONT, {0, 0, 0}, {0, 0, 0});
+    Shader s("res/shaders/default3D.vert", "res/shaders/default3D.frag");
+    s.setUniform1i("textu", 0);
+
+    glm::mat4 model = glm::mat4(1.0f);
+    s.setUniformMatrix4fv("modelMat", model);
+
+    glm::mat4 projection = glm::perspective(glm::radians(90.0f), 1280.0f / 720.0f, 0.1f, 500.0f);
+    s.setUniformMatrix4fv("projectionMat", projection);
+
+    Camera cam({0, 0, 3}, {-1, 1, 0});
+    ChunkMesh m;
+    m.addFace(Blocks::obsidian, BlockFace::FRONT, {0, 0, 0}, {0, 0, 0});
+    m.addFace(Blocks::obsidian, BlockFace::FRONT, {0, 0, 0}, {0, 1, 0});
+    m.addFace(Blocks::obsidian, BlockFace::FRONT, {0, 0, 0}, {1, 0, 0});
+
+    /*
+    GLfloat data[] = {
+        -0.5f, -0.5f, 0.0f,
+        0.5f, -0.5f, 0.0f,
+        -0.5f, 0.5f, 0.0f};
+
+    GLuint indices[] = {
+        0, 1, 2};
+
+    GLuint vao, vbo, ebo;
+    glGenVertexArrays(1, &vao);
+    glGenBuffers(1, &vbo);
+    glGenBuffers(1, &ebo);
+
+    glBindVertexArray(vao);
+
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(data), data, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 3, (void *)0);
+    glEnableVertexAttribArray(0);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    */
 
     bool appShouldTerminate = m_windows.empty();
     while (!appShouldTerminate)
@@ -62,10 +97,19 @@ void Application::runLoop()
             currentWindow->clear();
             currentWindow->draw();
 
-            //cam.rotate(currentWindow->getCursorTravel());
+            s.enable();
 
-            //glBindVertexArray(m.getVAO());
-            //glDrawElements(GL_TRIANGLES, m.getVerticesCount(), GL_UNSIGNED_INT, (void *)0);
+            glm::dvec2 rot = currentWindow->getCursorTravel() * 0.1;
+            cam.rotate(rot.y, rot.x);
+            s.setUniformMatrix4fv("viewMat", cam.getView());
+
+            glBindVertexArray(m.getVAO());
+            glDrawElements(GL_TRIANGLES, m.getVerticesCount(), GL_UNSIGNED_INT, (void *)0);
+
+            /*
+            glBindVertexArray(vao);
+            glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, (void *)0);
+            */
 
             if (currentWindow->shouldClose())
             {
