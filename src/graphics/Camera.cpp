@@ -48,9 +48,9 @@ void Camera::rotate(double pitch, double yaw)
 	m_up = glm::normalize(glm::cross(m_direction, m_right));
 	m_forward = glm::normalize(glm::cross(glm::dvec3(0.0, 1.0, 0.0), m_right));
 
-	LOG_TRACE("dir: {}, {}, {}", m_direction.x, m_direction.y, m_direction.z);
-	LOG_TRACE("rig: {}, {}, {}", m_right.x, m_right.y, m_right.z);
-	LOG_TRACE("up : {}, {}, {}", m_up.x, m_up.y, m_up.z);
-	LOG_TRACE("for: {}, {}, {}\n\n", m_forward.x, m_forward.y, m_forward.z);
+	//LOG_TRACE("dir: {}, {}, {}", m_direction.x, m_direction.y, m_direction.z);
+	//LOG_TRACE("rig: {}, {}, {}", m_right.x, m_right.y, m_right.z);
+	//LOG_TRACE("up : {}, {}, {}", m_up.x, m_up.y, m_up.z);
+	//LOG_TRACE("for: {}, {}, {}\n\n", m_forward.x, m_forward.y, m_forward.z);
 }
 } // namespace tk
