@@ -14,7 +14,14 @@ public:
 
   inline void enable() const noexcept { glUseProgram(m_shaderProgram); }
   inline void disable() const noexcept { glUseProgram(0); }
-  void reload() noexcept;
+  void reload();
+
+  void setUniform1i(const std::string &uniformName, int i);
+  void setUniform1f(const std::string &uniformName, float f);
+  void setUniform2f(const std::string &uniformName, float x, float y);
+  void setUniform3f(const std::string &uniformName, float x, float y, float z);
+  void setUniform4f(const std::string &uniformName, float x, float y, float z, float w);
+  void setUniformMatrix4fv(const std::string &uniformName, const glm::mat4 &transform);
 
 private:
   void load();
@@ -23,11 +30,14 @@ private:
   void createProgram();
   void deleteProgram() noexcept;
 
+  GLint getUniformLocation(const std::string &uniformName);
+
 private:
   std::string m_vertPath;
   std::string m_fragPath;
 
   GLuint m_vertexShader, m_fragmentShader, m_shaderProgram;
+  std::vector<std::pair<std::string, GLint>> m_uniformCache;
 
 public:
   Shader(const Shader &) = delete;

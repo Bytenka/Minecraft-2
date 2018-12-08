@@ -18,11 +18,47 @@ Shader::~Shader()
 
 // public:
 
-void Shader::reload() noexcept
+void Shader::reload()
 {
     LOG_DEBUG("Reloading shader \"{}, {}\"...", m_vertPath, m_fragPath);
     deleteProgram();
     load();
+}
+
+void Shader::setUniform1i(const std::string &uniformName, int i)
+{
+    enable();
+    glUniform1i(getUniformLocation(uniformName), i);
+}
+
+void Shader::setUniform1f(const std::string &uniformName, float f)
+{
+    enable();
+    glUniform1f(getUniformLocation(uniformName), f);
+}
+
+void Shader::setUniform2f(const std::string &uniformName, float x, float y)
+{
+    enable();
+    glUniform2f(getUniformLocation(uniformName), x, y);
+}
+
+void Shader::setUniform3f(const std::string &uniformName, float x, float y, float z)
+{
+    enable();
+    glUniform3f(getUniformLocation(uniformName), x, y, z);
+}
+
+void Shader::setUniform4f(const std::string &uniformName, float x, float y, float z, float w)
+{
+    enable();
+    glUniform4f(getUniformLocation(uniformName), x, y, z, w);
+}
+
+void Shader::setUniformMatrix4fv(const std::string &uniformName, const glm::mat4 &transform)
+{
+    enable();
+    glUniformMatrix4fv(getUniformLocation(uniformName), 1, GL_FALSE, glm::value_ptr(transform));
 }
 
 // private:
@@ -134,7 +170,30 @@ void Shader::createProgram()
 void Shader::deleteProgram() noexcept
 {
     glDeleteProgram(m_shaderProgram);
-    //flushUniformCache();
+    m_uniformCache.clear();
+}
+
+GLint Shader::getUniformLocation(const std::string &uniformName)
+{
+    auto it = std::find_if(
+        m_uniformCache.begin(),
+        m_uniformCache.end(),
+        [&](const std::pair<std::string, GLuint> &current) {
+            return (current.first) == uniformName;
+        });
+
+    if (it != m_uniformCache.end())
+        return it->second;
+
+    // If not in cache, add it
+    GLint newValue = glGetUniformLocation(m_shaderProgram, uniformName.c_str());
+
+    if (newValue == -1)
+        throw std::invalid_argument("Uniform \"" + uniformName + "\" does not exist or is invalid");
+
+    m_uniformCache.push_back(std::make_pair(uniformName, newValue));
+
+    return newValue;
 }
 
 } // namespace tk
