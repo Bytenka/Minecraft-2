@@ -67,9 +67,9 @@ void Application::runLoop()
 
     ///*
     GLfloat data[] = {
-        -10.5f, -10.5f, 0.0f,
-        10.5f, -10.5f, 0.0f,
-        -10.5f, 10.5f, 0.0f};
+        -0.5f, -0.5f, 0.0f,
+        0.5f, -0.5f, 0.0f,
+        -0.5f, 0.5f, 0.0f};
 
     GLuint indices[] = {
         0, 1, 2};
