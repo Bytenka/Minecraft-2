@@ -1,3 +1,5 @@
+#include "pch.h"
+
 #include "Application.h"
 
 #include "../utils/Log.h"
@@ -19,14 +21,14 @@ Application::Application()
         if (glfwInit() == GLFW_FALSE)
             throw RuntimeException("Unable to initialize GLFW");
 
-        //glfwSetErrorCallback();
-
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
         Log::init();
         LOG_INFO("Application started");
+
+        glfwSetErrorCallback(glfw_error_callback);
     }
     catch (RuntimeException &e)
     {
@@ -46,6 +48,8 @@ Application::~Application()
 
 void Application::runLoop()
 {
+	m_windows[0].second->bindContext();
+
     Shader s("res/shaders/default3D.vert", "res/shaders/default3D.frag");
     s.setUniform1i("textu", 0);
 
@@ -61,11 +65,11 @@ void Application::runLoop()
     m.addFace(Blocks::obsidian, BlockFace::FRONT, {0, 0, 0}, {0, 1, 0});
     m.addFace(Blocks::obsidian, BlockFace::FRONT, {0, 0, 0}, {1, 0, 0});
 
-    /*
+    ///*
     GLfloat data[] = {
-        -0.5f, -0.5f, 0.0f,
-        0.5f, -0.5f, 0.0f,
-        -0.5f, 0.5f, 0.0f};
+        -10.5f, -10.5f, 0.0f,
+        10.5f, -10.5f, 0.0f,
+        -10.5f, 10.5f, 0.0f};
 
     GLuint indices[] = {
         0, 1, 2};
@@ -84,7 +88,11 @@ void Application::runLoop()
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-    */
+
+	glBindVertexArray(0);
+    //*/
+
+	m_windows[0].second->unbindContext();
 
     bool appShouldTerminate = m_windows.empty();
     while (!appShouldTerminate)
@@ -93,9 +101,12 @@ void Application::runLoop()
         {
             auto &currentPair = m_windows[i];
             auto &currentWindow = currentPair.second;
-            currentWindow->update();
-            currentWindow->clear();
-            currentWindow->draw();
+
+			LOG_INFO("{}", (void*)glfwGetCurrentContext());
+
+			currentWindow->bindContext();
+
+			LOG_INFO("{}", (void*)glfwGetCurrentContext());
 
             s.enable();
 
@@ -103,13 +114,21 @@ void Application::runLoop()
             cam.rotate(rot.y, rot.x);
             s.setUniformMatrix4fv("viewMat", cam.getView());
 
-            glBindVertexArray(m.getVAO());
-            glDrawElements(GL_TRIANGLES, m.getVerticesCount(), GL_UNSIGNED_INT, (void *)0);
+            currentWindow->update();
+            currentWindow->clear();
 
-            /*
-            glBindVertexArray(vao);
-            glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, (void *)0);
-            */
+			m.getVAO();
+
+			glBindVertexArray(vao);
+			glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, (void*)0);
+			glBindVertexArray(0);
+
+            //glBindVertexArray(m.getVAO());
+			//glDrawElements(GL_TRIANGLES, m.getVerticesCount(), GL_UNSIGNED_INT, (void*)0);
+			//glBindVertexArray(0);
+
+            currentWindow->draw();
+			currentWindow->unbindContext();
 
             if (currentWindow->shouldClose())
             {
@@ -118,6 +137,7 @@ void Application::runLoop()
 
                 m_windows.erase(m_windows.begin() + i);
             }
+
         }
     }
 }
@@ -160,10 +180,6 @@ void Application::destroyWindow(WindowUID uid)
             m_windows.erase(getWindowFromUID(uid));
         }
     }
-    catch (std::invalid_argument &e)
-    {
-        LOG_ERROR("Window with UID \"{}\" does not exist", uid);
-    }
     catch (RuntimeException &e)
     {
         LOG_ERROR("Cannot destroy window with UID \"{}\": {}", uid, e.what());
@@ -178,7 +194,7 @@ Window *Application::getInternalWindow(WindowUID uid) noexcept
     }
     catch (RuntimeException &e)
     {
-        LOG_ERROR("Unable to find window with UID \"{}\"", uid);
+        LOG_ERROR("Unable to find window with UID \"{}\": ", uid, e.what());
         return nullptr;
     }
 }
@@ -196,7 +212,7 @@ void Application::updateWindowSize(GLFWwindow *window, int width, int height)
     }
 }
 
-void Application::updateWindowCursorPosition(GLFWwindow *window, int xpos, int ypos)
+void Application::updateWindowCursorPosition(GLFWwindow *window, double xpos, double ypos)
 {
     try
     {
@@ -239,6 +255,15 @@ std::vector<std::pair<WindowUID, std::unique_ptr<Window>>>::iterator Application
         throw RuntimeException("Unable to find window in list from GLFW window");
 
     return it;
+}
+
+//------------------------------------//
+// Callbacks
+
+void glfw_error_callback(int error_code, const char* description)
+{
+	LOG_CRITICAL("GLFW error occured: {}", description);
+	throw RuntimeException();
 }
 
 } // namespace tk

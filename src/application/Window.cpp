@@ -1,3 +1,5 @@
+#include "pch.h"
+
 #include "Window.h"
 #include "Application.h"
 
@@ -41,6 +43,8 @@ Window::Window(const std::string &title, unsigned width, unsigned height)
 
     useMouseAsInput(true);
 
+	glfwMakeContextCurrent(NULL);
+
     LOG_INFO("Created new window \"{}\" ({}, {})", m_title, m_width, m_height);
 }
 
@@ -50,24 +54,30 @@ Window::~Window()
     LOG_INFO("Destroyed window \"{}\"", m_title);
 }
 
+// public:
+
+void Window::bindContext() const noexcept
+{
+	glfwMakeContextCurrent(m_glfwWindow);
+}
+
+void Window::unbindContext() const noexcept
+{
+	glfwMakeContextCurrent(NULL);
+}
 void Window::draw() const noexcept
 {
-    glfwMakeContextCurrent(m_glfwWindow);
-
-    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
     glfwSwapBuffers(m_glfwWindow);
 }
 
 void Window::update() noexcept
 {
-    glfwMakeContextCurrent(m_glfwWindow);
     m_cursorTravel = glm::dvec2(0);
     glfwPollEvents();
 }
 
-void Window::setClearColor(u_int8_t red, u_int8_t green, u_int8_t blue, u_int8_t alpha) const noexcept
+void Window::setClearColor(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha) const noexcept
 {
-    glfwMakeContextCurrent(m_glfwWindow);
     glClearColor(
         red / 255.0f,
         green / 255.0f,
@@ -77,7 +87,6 @@ void Window::setClearColor(u_int8_t red, u_int8_t green, u_int8_t blue, u_int8_t
 
 void Window::clear() const noexcept
 {
-    glfwMakeContextCurrent(m_glfwWindow);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 

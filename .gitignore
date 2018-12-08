@@ -2,12 +2,14 @@
 .vscode/
 bin/
 obj/
+.vs/
 
 
 # Files
 .directory
 Makefile
 *.make
-*.vcxproj
+*.vcxproj*
 *.sln
 *.sh
+*.exe

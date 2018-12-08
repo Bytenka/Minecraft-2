@@ -13,9 +13,11 @@ public:
   Window(const std::string &title, unsigned width, unsigned height);
   ~Window();
 
+  void bindContext() const noexcept; // Should be called before anything else related to graphics
+  void unbindContext() const noexcept;
   void draw() const noexcept;
   void update() noexcept;
-  void setClearColor(u_int8_t red, u_int8_t green, u_int8_t blue, u_int8_t alpha = 255) const noexcept;
+  void setClearColor(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha = 255) const noexcept;
   void clear() const noexcept;
   void setIcon(const std::string &imgPath);
   void updateSize(int width, int height) noexcept;

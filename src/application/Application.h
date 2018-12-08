@@ -24,7 +24,7 @@ public:
   Window *getInternalWindow(WindowUID uid) noexcept;
 
   void updateWindowSize(GLFWwindow *window, int width, int height);
-  void updateWindowCursorPosition(GLFWwindow *window, int xpos, int ypos);
+  void updateWindowCursorPosition(GLFWwindow *window, double xpos, double ypos);
 
   inline void setMainWindow(WindowUID uid) noexcept { m_mainWindowUID = uid; }
 
@@ -44,6 +44,11 @@ public:
   Application(const Application &) = delete;
   void operator=(const Application &) = delete;
 };
+
+
+// Callbacks
+void glfw_error_callback(int error_code, const char* description);
+
 } // namespace tk
 
 // Singleton pattern from https://stackoverflow.com/questions/1008019/c-singleton-design-pattern/1008289#1008289
