@@ -1,8 +1,11 @@
 #pragma once
 
-#include "pch.h"
-
 #include <glad/glad.h>
+#include <glm/glm.hpp>
+
+#include <string>
+#include <vector>
+#include <utility>
 
 namespace tk
 {

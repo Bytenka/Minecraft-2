@@ -2,6 +2,9 @@
 
 #include "Chunk.h"
 
+#include <string>
+#include <exception>
+
 namespace tk
 {
 Chunk::Chunk()

@@ -1,7 +1,9 @@
 #pragma once
-#include "pch.h"
 
 #include <glad/glad.h>
+
+#include <string>
+#include <array>
 
 namespace tk
 {

@@ -1,9 +1,10 @@
 #include "pch.h"
-
 #include "glutils.h"
-#include "Log.h"
 
+#include "Log.h"
 #include "Exceptions.h"
+
+#include <stdio.h>
 
 namespace tk
 {

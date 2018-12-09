@@ -1,8 +1,10 @@
 #include "pch.h"
-
 #include "Shader.h"
+
 #include "../utils/Exceptions.h"
 #include "../utils/glutils.h"
+
+#include <exception>
 
 namespace tk
 {
@@ -103,8 +105,8 @@ void Shader::createShader(GLenum shaderType)
         const char *shaSource = shaSourceStr.c_str();
 
         GLuint sha = glCreateShader(shaderType);
-		if (sha == 0)
-			throw RuntimeException("OpenGL call to create shader failed");
+        if (sha == 0)
+            throw RuntimeException("OpenGL call to create shader failed");
 
         glShaderSource(sha, 1, &shaSource, NULL);
         glCompileShader(sha);
@@ -147,8 +149,8 @@ void Shader::deleteShader(GLenum shaderType)
 void Shader::createProgram()
 {
     GLuint prog = glCreateProgram();
-	if (prog == 0)
-		throw RuntimeException("OpenGL call to create program shader failed");
+    if (prog == 0)
+        throw RuntimeException("OpenGL call to create program shader failed");
 
     glAttachShader(prog, m_vertexShader);
     glAttachShader(prog, m_fragmentShader);

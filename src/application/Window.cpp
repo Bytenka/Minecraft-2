@@ -1,9 +1,8 @@
 #include "pch.h"
-
 #include "Window.h"
+
 #include "Application.h"
 
-#include "../utils/Exceptions.h"
 #include "../graphics/Image.h"
 
 namespace tk
@@ -43,7 +42,7 @@ Window::Window(const std::string &title, unsigned width, unsigned height)
 
     useMouseAsInput(true);
 
-	glfwMakeContextCurrent(NULL);
+    glfwMakeContextCurrent(NULL);
 
     LOG_INFO("Created new window \"{}\" ({}, {})", m_title, m_width, m_height);
 }
@@ -58,12 +57,12 @@ Window::~Window()
 
 void Window::bindContext() const noexcept
 {
-	glfwMakeContextCurrent(m_glfwWindow);
+    glfwMakeContextCurrent(m_glfwWindow);
 }
 
 void Window::unbindContext() const noexcept
 {
-	glfwMakeContextCurrent(NULL);
+    glfwMakeContextCurrent(NULL);
 }
 void Window::draw() const noexcept
 {

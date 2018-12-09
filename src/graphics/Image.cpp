@@ -1,5 +1,4 @@
 #include "pch.h"
-
 #include "Image.h"
 
 // Requirered to use stb_image.h

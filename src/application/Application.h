@@ -1,8 +1,14 @@
 #pragma once
 
-#include "pch.h"
-
 #include "Window.h"
+
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+
+#include <string>
+#include <vector>
+#include <utility>
+#include <memory>
 
 #define WINDOW_NULL 0
 
@@ -45,9 +51,8 @@ public:
   void operator=(const Application &) = delete;
 };
 
-
 // Callbacks
-void glfw_error_callback(int error_code, const char* description);
+void glfw_error_callback(int error_code, const char *description);
 
 } // namespace tk
 

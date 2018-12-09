@@ -1,16 +1,16 @@
 #include "pch.h"
-
 #include "Application.h"
 
 #include "../utils/Log.h"
 #include "../utils/Exceptions.h"
 
+#include <iostream>
+#include <algorithm>
+
 #include "../graphics/Camera.h"
 #include "../graphics/Shader.h"
 #include "../world/ChunkMesh.h"
-
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
 
 namespace tk
 {
@@ -48,7 +48,7 @@ Application::~Application()
 
 void Application::runLoop()
 {
-	m_windows[0].second->bindContext();
+    m_windows[0].second->bindContext();
 
     Shader s("res/shaders/default3D.vert", "res/shaders/default3D.frag");
     s.setUniform1i("textu", 0);
@@ -59,13 +59,13 @@ void Application::runLoop()
     glm::mat4 projection = glm::perspective(glm::radians(90.0f), 1280.0f / 720.0f, 0.1f, 500.0f);
     s.setUniformMatrix4fv("projectionMat", projection);
 
-    Camera cam({0, 0, 3}, {-1, 1, 0});
+    Camera cam({0, 0, 3}, {1, 0, 0});
     ChunkMesh m;
     m.addFace(Blocks::obsidian, BlockFace::FRONT, {0, 0, 0}, {0, 0, 0});
     m.addFace(Blocks::obsidian, BlockFace::FRONT, {0, 0, 0}, {0, 1, 0});
     m.addFace(Blocks::obsidian, BlockFace::FRONT, {0, 0, 0}, {1, 0, 0});
 
-    ///*
+    /*
     GLfloat data[] = {
         -0.5f, -0.5f, 0.0f,
         0.5f, -0.5f, 0.0f,
@@ -90,9 +90,9 @@ void Application::runLoop()
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
 	glBindVertexArray(0);
-    //*/
+    */
 
-	m_windows[0].second->unbindContext();
+    m_windows[0].second->unbindContext();
 
     bool appShouldTerminate = m_windows.empty();
     while (!appShouldTerminate)
@@ -102,11 +102,11 @@ void Application::runLoop()
             auto &currentPair = m_windows[i];
             auto &currentWindow = currentPair.second;
 
-			LOG_INFO("{}", (void*)glfwGetCurrentContext());
+            //LOG_INFO("{}", (void*)glfwGetCurrentContext());
 
-			currentWindow->bindContext();
+            currentWindow->bindContext();
 
-			LOG_INFO("{}", (void*)glfwGetCurrentContext());
+            //LOG_INFO("{}", (void*)glfwGetCurrentContext());
 
             s.enable();
 
@@ -117,18 +117,17 @@ void Application::runLoop()
             currentWindow->update();
             currentWindow->clear();
 
-			m.getVAO();
+            //m.getVAO();
+            //glBindVertexArray(vao);
+            //glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, (void*)0);
+            //glBindVertexArray(0);
 
-			glBindVertexArray(vao);
-			glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, (void*)0);
-			glBindVertexArray(0);
-
-            //glBindVertexArray(m.getVAO());
-			//glDrawElements(GL_TRIANGLES, m.getVerticesCount(), GL_UNSIGNED_INT, (void*)0);
-			//glBindVertexArray(0);
+            glBindVertexArray(m.getVAO());
+            glDrawElements(GL_TRIANGLES, m.getVerticesCount(), GL_UNSIGNED_INT, (void *)0);
+            glBindVertexArray(0);
 
             currentWindow->draw();
-			currentWindow->unbindContext();
+            currentWindow->unbindContext();
 
             if (currentWindow->shouldClose())
             {
@@ -137,7 +136,6 @@ void Application::runLoop()
 
                 m_windows.erase(m_windows.begin() + i);
             }
-
         }
     }
 }
@@ -260,10 +258,10 @@ std::vector<std::pair<WindowUID, std::unique_ptr<Window>>>::iterator Application
 //------------------------------------//
 // Callbacks
 
-void glfw_error_callback(int error_code, const char* description)
+void glfw_error_callback(int error_code, const char *description)
 {
-	LOG_CRITICAL("GLFW error occured: {}", description);
-	throw RuntimeException();
+    LOG_CRITICAL("GLFW error occured: {}", description);
+    throw RuntimeException();
 }
 
 } // namespace tk
