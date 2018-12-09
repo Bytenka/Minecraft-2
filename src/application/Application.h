@@ -35,16 +35,16 @@ public:
   inline void setMainWindow(WindowUID uid) noexcept { m_mainWindowUID = uid; }
 
 private:
-  std::vector<std::pair<WindowUID, std::unique_ptr<Window>>> m_windows;
-  WindowUID m_mainWindowUID = WINDOW_NULL;
-  WindowUID m_windowUIDCounter = 1;
-
-private:
   Application();
   ~Application();
 
   std::vector<std::pair<WindowUID, std::unique_ptr<Window>>>::iterator getWindowFromUID(WindowUID uid);
   std::vector<std::pair<WindowUID, std::unique_ptr<Window>>>::iterator getWindowFromGLFWwindow(GLFWwindow *window);
+
+private:
+  std::vector<std::pair<WindowUID, std::unique_ptr<Window>>> m_windows;
+  WindowUID m_mainWindowUID = WINDOW_NULL;
+  WindowUID m_windowUIDCounter = 1;
 
 public:
   Application(const Application &) = delete;

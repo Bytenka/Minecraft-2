@@ -64,7 +64,7 @@ extern const Block _air;
 extern const Block _opaque;
 extern const Block grass;
 extern const Block dirt;
-extern const Block cobble_stone;
+extern const Block cobblestone;
 extern const Block stone;
 extern const Block obsidian;
 extern const Block tnt;

@@ -4,6 +4,8 @@
 #include "../utils/Exceptions.h"
 #include "../utils/glutils.h"
 
+#include <glm/gtc/type_ptr.hpp>
+
 #include <exception>
 
 namespace tk

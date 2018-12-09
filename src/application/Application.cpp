@@ -10,7 +10,9 @@
 #include "../graphics/Camera.h"
 #include "../graphics/Shader.h"
 #include "../world/ChunkMesh.h"
+#include "../graphics/TextureAtlas.h"
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 namespace tk
 {
@@ -58,6 +60,16 @@ void Application::runLoop()
 
     glm::mat4 projection = glm::perspective(glm::radians(90.0f), 1280.0f / 720.0f, 0.1f, 500.0f);
     s.setUniformMatrix4fv("projectionMat", projection);
+
+    try
+    {
+        TextureAtlas::getInstance().load("res/textures/blocks/atlas.png");
+    }
+    catch (RuntimeException &e)
+    {
+        LOG_ERROR("Unable to load textures: {}", e.what());
+        throw;
+    }
 
     Camera cam({0, 0, 3}, {1, 0, 0});
     ChunkMesh m;

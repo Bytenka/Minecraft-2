@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "ChunkMesh.h"
 
+#include "../graphics/TextureAtlas.h"
 #include "../utils/Exceptions.h"
 #include "Constants.h"
 
@@ -19,7 +20,15 @@ ChunkMesh::~ChunkMesh()
 // public:
 void ChunkMesh::addFace(const Block &block, BlockFace face, const glm::ivec3 &chunkPos, const glm::uvec3 &blockPos) noexcept
 {
-    // @TODO Push texture coords
+    try
+    {
+        auto text = tk::TextureAtlas::getInstance().getTextureCoordinates(block.textures[face]);
+        m_textCoords.insert(m_textCoords.end(), text.begin(), text.end());
+    }
+    catch (RuntimeException &e)
+    {
+        LOG_ERROR("Unable to apply texture to face: {}", e.what());
+    }
 
     // 4 vertices to add per face, 3 coords per vertex
     for (unsigned i = 0; i < 4; i++)
@@ -44,7 +53,7 @@ void ChunkMesh::addFace(const Block &block, BlockFace face, const glm::ivec3 &ch
     m_isUsable = false;
 }
 
-GLuint ChunkMesh::getVAO() noexcept
+GLuint ChunkMesh::getVAO()
 {
     if (!m_isUsable)
         push();
@@ -53,31 +62,41 @@ GLuint ChunkMesh::getVAO() noexcept
 
 // private:
 
-void ChunkMesh::push() noexcept
+void ChunkMesh::push()
 {
     clearGL();
 
-    glGenVertexArrays(1, &m_vao);
-    glGenBuffers(1, &m_vboVert);
-    glGenBuffers(1, &m_vboText);
-    glGenBuffers(1, &m_ebo);
+    GLuint vao, vboVert, vboText, ebo;
 
-    glBindVertexArray(m_vao);
+    glGenVertexArrays(1, &vao);
+    glGenBuffers(1, &vboVert);
+    glGenBuffers(1, &vboText);
+    glGenBuffers(1, &ebo);
 
-    glBindBuffer(GL_ARRAY_BUFFER, m_vboVert);
+    if (!vao || !vboVert || !vboText || !ebo)
+        throw RuntimeException("OpenGL call to create buffers failed");
+
+    glBindVertexArray(vao);
+
+    glBindBuffer(GL_ARRAY_BUFFER, vboVert);
     glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * m_vertCoords.size(), m_vertCoords.data(), GL_STATIC_DRAW);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 3, (void *)0);
     glEnableVertexAttribArray(0);
 
-    glBindBuffer(GL_ARRAY_BUFFER, m_vboText);
+    glBindBuffer(GL_ARRAY_BUFFER, vboText);
     glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * m_textCoords.size(), m_textCoords.data(), GL_STATIC_DRAW);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 2, (void *)0);
     glEnableVertexAttribArray(1);
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLfloat) * m_indices.size(), m_indices.data(), GL_STATIC_DRAW);
 
     glBindVertexArray(0);
+
+    m_vao = vao;
+    m_vboVert = vboVert;
+    m_vboText = vboText;
+    m_ebo = ebo;
 
     m_isUsable = true;
 }

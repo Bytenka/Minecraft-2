@@ -17,9 +17,7 @@ Image::Image(const std::string &imgPath)
     unsigned char *data = stbi_load(m_imgPath.c_str(), &m_width, &m_height, &m_nbChannels, 0);
 
     if (data == NULL)
-    {
         throw RuntimeException("Unable to load file \"" + imgPath + "\"!\n\tReason: " + stbi_failure_reason());
-    }
 
     // Discard previous data if existing
     if (m_data != NULL)
