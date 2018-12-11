@@ -2,6 +2,7 @@
 #include "Window.h"
 
 #include "Application.h"
+#include "../utils/Exceptions.h"
 
 #include "../graphics/Image.h"
 

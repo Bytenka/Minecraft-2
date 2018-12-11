@@ -11,6 +11,7 @@
 #include "../graphics/Shader.h"
 #include "../world/ChunkMesh.h"
 #include "../world/Chunk.h"
+#include "../world/ChunkColumn.h"
 #include "../debug.h"
 #include "../graphics/TextureAtlas.h"
 #include <glm/glm.hpp>
@@ -70,10 +71,15 @@ void Application::runLoop()
     Chunk c(Blocks::grass);
     c.fillColumnWith({5, 5}, Blocks::diamond_ore);
 
-    Chunk c2(Blocks::tnt);
+    Chunk c2(Blocks::stone);
+    c2.fillLayerWith(5, Blocks::obsidian);
 
-    c.generateMesh({0, 0, 0}, {&c2, nullptr, nullptr, nullptr, nullptr, nullptr});
-    c2.generateMesh({0, 1, 0}, {nullptr, &c, nullptr, nullptr, nullptr, nullptr});
+    c.generateMesh({0, 0, 1}, {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr});
+    c2.generateMesh({1, 0, 0}, {nullptr, &c, nullptr, nullptr, nullptr, nullptr});
+
+    ChunkColumn cl({-1, 0});
+    cl.generateMeshes();
+
     /*
     GLfloat data[] = {
         -0.5f, -0.5f, 0.0f,
@@ -127,16 +133,7 @@ void Application::runLoop()
             currentWindow->clear();
 
             // @DEBUG
-            if (poolKeys(currentWindow->getGLFWwindow(), cam))
-            {
-                c.setBlock({rand() % CHUNK_SIZE, rand() % CHUNK_SIZE, rand() % CHUNK_SIZE}, Blocks::_air);
-                c.generateMesh({0, 0, 0}, {&c2, nullptr, nullptr, nullptr, nullptr, nullptr});
-            }
-
-            //m.getVAO();
-            //glBindVertexArray(vao);
-            //glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, (void*)0);
-            //glBindVertexArray(0);
+            poolKeys(currentWindow->getGLFWwindow(), cam);
 
             glBindVertexArray(c.getMesh().getVAO());
             glDrawElements(GL_TRIANGLES, c.getMesh().getVerticesCount(), GL_UNSIGNED_INT, (void *)0);
@@ -145,6 +142,22 @@ void Application::runLoop()
             glBindVertexArray(c2.getMesh().getVAO());
             glDrawElements(GL_TRIANGLES, c2.getMesh().getVerticesCount(), GL_UNSIGNED_INT, (void *)0);
             glBindVertexArray(0);
+
+            for (unsigned i = 0; i < CHUNK_COL_HEIGHT; i++)
+            {
+                glBindVertexArray(cl.getChunk(i)->getMesh().getVAO());
+                glDrawElements(GL_TRIANGLES, cl.getChunk(i)->getMesh().getVerticesCount(), GL_UNSIGNED_INT, (void *)0);
+                glBindVertexArray(0);
+            }
+
+            /*
+            ChunkMesh &oui = cl.getChunk(0)->getMesh();
+            GLuint a = oui.getVAO();
+            glBindVertexArray(oui.getVAO());
+            glDrawElements(GL_TRIANGLES, oui.getVerticesCount(), GL_UNSIGNED_INT, (void *)0);
+            glBindVertexArray(0);*/
+
+            LOG_TRACE("{}, {}, {}", cam.getPosition().x, cam.getPosition().y, cam.getPosition().z);
 
             currentWindow->draw();
             currentWindow->unbindContext();

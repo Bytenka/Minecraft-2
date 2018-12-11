@@ -90,7 +90,7 @@ void Chunk::fillColumnWith(const glm::uvec2 &column, const Block &with)
     fillColumnWith(column, 0, CHUNK_SIZE - 1, with);
 }
 
-void Chunk::generateMesh(const glm::ivec3 &forPosition, const std::array<Chunk *, 6> &neighboors)
+void Chunk::generateMesh(const glm::ivec3 &forPosition, const std::array<const Chunk *, 6> &neighboors)
 {
     double buildTimeStart = glfwGetTime();
 
@@ -129,16 +129,18 @@ void Chunk::generateMesh(const glm::ivec3 &forPosition, const std::array<Chunk *
 
 // private:
 
-const Block *Chunk::getBlockNeighboors(const glm::ivec3 &at, const std::array<Chunk *, 6> &neighboors) const
+const Block *Chunk::getBlockNeighboors(const glm::ivec3 &at, const std::array<const Chunk *, 6> &neighboors) const
 {
     // Cast to unsigned. Error will be catched in getBlock calls
     glm::uvec3 newPos = (at + CHUNK_SIZE) % CHUNK_SIZE;
 
+    // ------------------------------------------- //
     if (at.y >= CHUNK_SIZE) // Top chunk
         return neighboors[0] == nullptr ? &Blocks::BLOCK_IF_VOID : neighboors[0]->getBlock(newPos);
 
     if (at.y < 0) // Bottom chunk
         return neighboors[1] == nullptr ? &Blocks::BLOCK_IF_VOID : neighboors[1]->getBlock(newPos);
+    // Technically, those two above are never null //
 
     if (at.x < 0) // Left chunk
         return neighboors[2] == nullptr ? &Blocks::BLOCK_IF_VOID : neighboors[2]->getBlock(newPos);
