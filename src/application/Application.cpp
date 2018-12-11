@@ -10,6 +10,8 @@
 #include "../graphics/Camera.h"
 #include "../graphics/Shader.h"
 #include "../world/ChunkMesh.h"
+#include "../world/Chunk.h"
+#include "../debug.h"
 #include "../graphics/TextureAtlas.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -61,21 +63,13 @@ void Application::runLoop()
     glm::mat4 projection = glm::perspective(glm::radians(90.0f), 1280.0f / 720.0f, 0.1f, 500.0f);
     s.setUniformMatrix4fv("projectionMat", projection);
 
-    try
-    {
-        TextureAtlas::getInstance().load("res/textures/blocks/atlas.png");
-    }
-    catch (RuntimeException &e)
-    {
-        LOG_ERROR("Unable to load textures: {}", e.what());
-        throw;
-    }
+    TextureAtlas::getInstance().load("res/textures/blocks/atlas.png");
 
-    Camera cam({0, 0, 3}, {1, 0, 0});
-    ChunkMesh m;
-    m.addFace(Blocks::obsidian, BlockFace::FRONT, {0, 0, 0}, {0, 0, 0});
-    m.addFace(Blocks::obsidian, BlockFace::FRONT, {0, 0, 0}, {0, 1, 0});
-    m.addFace(Blocks::obsidian, BlockFace::FRONT, {0, 0, 0}, {1, 0, 0});
+    Camera cam({0, 0, -5}, {1, 0, 0});
+
+    Chunk c(Blocks::grass);
+    c.fillColumnWith({5, 5}, Blocks::diamond_ore);
+    c.generateMesh({0, 0, 0}, {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr});
 
     /*
     GLfloat data[] = {
@@ -129,13 +123,16 @@ void Application::runLoop()
             currentWindow->update();
             currentWindow->clear();
 
+            // @DEBUG
+            poolKeys(currentWindow->getGLFWwindow(), cam);
+
             //m.getVAO();
             //glBindVertexArray(vao);
             //glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, (void*)0);
             //glBindVertexArray(0);
 
-            glBindVertexArray(m.getVAO());
-            glDrawElements(GL_TRIANGLES, m.getVerticesCount(), GL_UNSIGNED_INT, (void *)0);
+            glBindVertexArray(c.getMesh().getVAO());
+            glDrawElements(GL_TRIANGLES, c.getMesh().getVerticesCount(), GL_UNSIGNED_INT, (void *)0);
             glBindVertexArray(0);
 
             currentWindow->draw();

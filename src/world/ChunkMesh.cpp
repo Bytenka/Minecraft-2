@@ -60,6 +60,17 @@ GLuint ChunkMesh::getVAO()
     return m_vao;
 }
 
+void ChunkMesh::clear() noexcept
+{
+    m_vertCoords.clear();
+    m_textCoords.clear();
+    m_indices.clear();
+
+    m_indexOffset = 0;
+
+    clearGL();
+}
+
 // private:
 
 void ChunkMesh::push()
@@ -101,25 +112,8 @@ void ChunkMesh::push()
     m_isUsable = true;
 }
 
-void ChunkMesh::clear() noexcept
-{
-    m_vertCoords.clear();
-    m_textCoords.clear();
-    m_indices.clear();
-
-    m_indexOffset = 0;
-
-    clearGL();
-}
-
 void ChunkMesh::clearGL() noexcept
 {
-    if (m_vao != 0)
-    {
-        glDeleteVertexArrays(1, &m_vao);
-        m_vao = 0;
-    }
-
     if (m_vboVert != 0)
     {
         glDeleteBuffers(1, &m_vboVert);
@@ -136,6 +130,12 @@ void ChunkMesh::clearGL() noexcept
     {
         glDeleteBuffers(1, &m_ebo);
         m_ebo = 0;
+    }
+
+    if (m_vao != 0)
+    {
+        glDeleteVertexArrays(1, &m_vao);
+        m_vao = 0;
     }
 
     m_isUsable = false;

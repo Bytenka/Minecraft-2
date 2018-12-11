@@ -16,12 +16,12 @@ public:
 
   void addFace(const Block &block, BlockFace face, const glm::ivec3 &chunkPos, const glm::uvec3 &blockPos) noexcept;
   GLuint getVAO();
+  void clear() noexcept;
 
   inline unsigned getVerticesCount() const noexcept { return m_indices.size(); }
 
 private:
   void push();
-  void clear() noexcept;
   void clearGL() noexcept;
 
 private:
