@@ -15,13 +15,14 @@ public:
   ~ChunkMesh();
 
   void addFace(const Block &block, BlockFace face, const glm::ivec3 &chunkPos, const glm::uvec3 &blockPos) noexcept;
-  GLuint getVAO();
+  GLuint getVAO() noexcept;
   void clear() noexcept;
 
   inline unsigned getVerticesCount() const noexcept { return m_indices.size(); }
 
 private:
-  void push();
+  void initGL();
+  void pushGL() noexcept;
   void clearGL() noexcept;
 
 private:

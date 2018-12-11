@@ -11,10 +11,12 @@ namespace tk
 {
 ChunkMesh::ChunkMesh()
 {
+    initGL();
 }
 
 ChunkMesh::~ChunkMesh()
 {
+    clearGL();
 }
 
 // public:
@@ -53,10 +55,10 @@ void ChunkMesh::addFace(const Block &block, BlockFace face, const glm::ivec3 &ch
     m_isUsable = false;
 }
 
-GLuint ChunkMesh::getVAO()
+GLuint ChunkMesh::getVAO() noexcept
 {
     if (!m_isUsable)
-        push();
+        pushGL();
     return m_vao;
 }
 
@@ -67,16 +69,14 @@ void ChunkMesh::clear() noexcept
     m_indices.clear();
 
     m_indexOffset = 0;
-
-    clearGL();
+    m_isUsable = false;
 }
 
 // private:
 
-void ChunkMesh::push()
+void ChunkMesh::initGL()
 {
-    clearGL();
-
+    // Initialize buffers
     GLuint vao, vboVert, vboText, ebo;
 
     glGenVertexArrays(1, &vao);
@@ -90,24 +90,39 @@ void ChunkMesh::push()
     glBindVertexArray(vao);
 
     glBindBuffer(GL_ARRAY_BUFFER, vboVert);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * m_vertCoords.size(), m_vertCoords.data(), GL_STATIC_DRAW);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 3, (void *)0);
     glEnableVertexAttribArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     glBindBuffer(GL_ARRAY_BUFFER, vboText);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * m_textCoords.size(), m_textCoords.data(), GL_STATIC_DRAW);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 2, (void *)0);
     glEnableVertexAttribArray(1);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLfloat) * m_indices.size(), m_indices.data(), GL_STATIC_DRAW);
-
     glBindVertexArray(0);
 
     m_vao = vao;
     m_vboVert = vboVert;
     m_vboText = vboText;
     m_ebo = ebo;
+
+    m_isUsable = false;
+}
+
+void ChunkMesh::pushGL() noexcept
+{
+    glBindBuffer(GL_ARRAY_BUFFER, m_vboVert);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * m_vertCoords.size(), m_vertCoords.data(), GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    glBindBuffer(GL_ARRAY_BUFFER, m_vboText);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * m_textCoords.size(), m_textCoords.data(), GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLfloat) * m_indices.size(), m_indices.data(), GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
     m_isUsable = true;
 }
@@ -137,7 +152,5 @@ void ChunkMesh::clearGL() noexcept
         glDeleteVertexArrays(1, &m_vao);
         m_vao = 0;
     }
-
-    m_isUsable = false;
 }
 } // namespace tk

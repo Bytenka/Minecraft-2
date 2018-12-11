@@ -5,7 +5,7 @@
 
 namespace tk
 {
-void poolKeys(GLFWwindow *w, Camera &cam)
+bool poolKeys(GLFWwindow *w, Camera &cam)
 {
     if (glfwGetKey(w, GLFW_KEY_W) == GLFW_PRESS)
         cam.move(cam.getForward());
@@ -27,5 +27,10 @@ void poolKeys(GLFWwindow *w, Camera &cam)
 
     if (glfwGetKey(w, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(w, true);
+
+    if (glfwGetKey(w, GLFW_KEY_R) == GLFW_PRESS)
+        return true;
+
+    return false;
 }
 } // namespace tk

@@ -69,8 +69,11 @@ void Application::runLoop()
 
     Chunk c(Blocks::grass);
     c.fillColumnWith({5, 5}, Blocks::diamond_ore);
-    c.generateMesh({0, 0, 0}, {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr});
 
+    Chunk c2(Blocks::tnt);
+
+    c.generateMesh({0, 0, 0}, {&c2, nullptr, nullptr, nullptr, nullptr, nullptr});
+    c2.generateMesh({0, 1, 0}, {nullptr, &c, nullptr, nullptr, nullptr, nullptr});
     /*
     GLfloat data[] = {
         -0.5f, -0.5f, 0.0f,
@@ -124,7 +127,11 @@ void Application::runLoop()
             currentWindow->clear();
 
             // @DEBUG
-            poolKeys(currentWindow->getGLFWwindow(), cam);
+            if (poolKeys(currentWindow->getGLFWwindow(), cam))
+            {
+                c.setBlock({rand() % CHUNK_SIZE, rand() % CHUNK_SIZE, rand() % CHUNK_SIZE}, Blocks::_air);
+                c.generateMesh({0, 0, 0}, {&c2, nullptr, nullptr, nullptr, nullptr, nullptr});
+            }
 
             //m.getVAO();
             //glBindVertexArray(vao);
@@ -133,6 +140,10 @@ void Application::runLoop()
 
             glBindVertexArray(c.getMesh().getVAO());
             glDrawElements(GL_TRIANGLES, c.getMesh().getVerticesCount(), GL_UNSIGNED_INT, (void *)0);
+            glBindVertexArray(0);
+
+            glBindVertexArray(c2.getMesh().getVAO());
+            glDrawElements(GL_TRIANGLES, c2.getMesh().getVerticesCount(), GL_UNSIGNED_INT, (void *)0);
             glBindVertexArray(0);
 
             currentWindow->draw();
