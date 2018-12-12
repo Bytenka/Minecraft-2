@@ -17,6 +17,7 @@
 #include "../graphics/TextureAtlas.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <thread>
 
 namespace tk
 {
@@ -70,14 +71,15 @@ void Application::runLoop()
     Camera cam({0, 0, -1}, {0, 0, 0});
 
     World w;
+    glm::dvec3 pos(0);
 
     for (int x = 0; x < 5; x++)
         for (int z = 0; z < 5; z++)
             w.loadColumn({x, z});
 
-    m_windows[0].second->unbindContext();
-
     bool appShouldTerminate = m_windows.empty();
+    std::thread updateThread(World::updateLoop, std::ref(w), std::ref(pos), std::ref(appShouldTerminate));
+
     while (!appShouldTerminate)
     {
         for (int i = m_windows.size() - 1; i >= 0; i--)
@@ -123,6 +125,8 @@ void Application::runLoop()
             }
         }
     }
+
+    updateThread.join();
 }
 
 WindowUID Application::createWindow(const std::string &title, unsigned width, unsigned height)

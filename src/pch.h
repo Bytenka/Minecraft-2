@@ -8,6 +8,7 @@
 #include <thread>
 #include <utility>
 #include <exception>
+#include <chrono>
 
 // Data structures
 #include <string>

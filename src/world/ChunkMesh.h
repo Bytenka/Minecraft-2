@@ -24,7 +24,7 @@ public:
   GLuint getVAO() noexcept;
   void clear() noexcept;
 
-  inline unsigned getVerticesCount() const noexcept { return m_indices.size(); }
+  inline unsigned getVerticesCount() const noexcept { return m_isInitialized ? m_indices.size() : 0; }
 
 private:
   void initGL();
@@ -40,5 +40,6 @@ private:
 
   unsigned m_indexOffset = 0;
   bool m_isUsable = false;
+  bool m_isInitialized = false;
 };
 } // namespace tk

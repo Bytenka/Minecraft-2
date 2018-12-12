@@ -11,7 +11,6 @@ namespace tk
 {
 ChunkMesh::ChunkMesh()
 {
-    initGL();
 }
 
 ChunkMesh::~ChunkMesh()
@@ -108,10 +107,14 @@ void ChunkMesh::initGL()
     m_ebo = ebo;
 
     m_isUsable = false;
+    m_isInitialized = true;
 }
 
 void ChunkMesh::pushGL() noexcept
 {
+    if (!m_isInitialized)
+        initGL();
+
     glBindBuffer(GL_ARRAY_BUFFER, m_vboVert);
     glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * m_vertCoords.size(), m_vertCoords.data(), GL_DYNAMIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -152,5 +155,7 @@ void ChunkMesh::clearGL() noexcept
         glDeleteVertexArrays(1, &m_vao);
         m_vao = 0;
     }
+
+    m_isInitialized = false;
 }
 } // namespace tk

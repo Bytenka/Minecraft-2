@@ -123,8 +123,6 @@ void Chunk::generateMesh(const glm::ivec3 &forPosition, const std::array<const C
                 if (!getBlockNeighboors({x, y, z - 1}, neighboors)->data.isOpaque)
                     m_mesh.addFace(*currentBlock, BlockFace::BACK, forPosition, {x, y, z});
             }
-
-    LOG_TRACE("Built mesh for chunk at {}, {}, {}. Build time: {}ms", forPosition.x, forPosition.y, forPosition.z, (glfwGetTime() - buildTimeStart) * 1000);
 }
 
 RenderData Chunk::getRenderData() noexcept
