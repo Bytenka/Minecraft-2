@@ -7,8 +7,7 @@ namespace tk
 {
 std::unique_ptr<Chunk> ChunkColumn::s_borderChunk(nullptr);
 
-ChunkColumn::ChunkColumn(const glm::ivec2 &position)
-    : m_position(position)
+ChunkColumn::ChunkColumn()
 {
     if (!s_borderChunk)
         s_borderChunk = std::make_unique<Chunk>(Blocks::_air); // _air specified for clarity
@@ -49,7 +48,19 @@ Chunk *ChunkColumn::getChunk(unsigned atIndex)
     return &m_chunks[atIndex];
 }
 
-void ChunkColumn::generateMeshesFor(unsigned chunkIndex)
+std::vector<RenderData> ChunkColumn::getRenderData() noexcept
+{
+    std::vector<RenderData> toReturn;
+
+    for (auto &c : m_chunks)
+    {
+        toReturn.push_back(c.getRenderData());
+    }
+
+    return toReturn;
+}
+
+void ChunkColumn::generateMeshesFor(unsigned chunkIndex, const glm::ivec2 &columnPos)
 {
     if (chunkIndex >= CHUNK_COL_HEIGHT)
         throw std::out_of_range("Index " + std::to_string(chunkIndex) + " for chunk is out of range");
@@ -63,13 +74,13 @@ void ChunkColumn::generateMeshesFor(unsigned chunkIndex)
     adjacentChunks[4] = adjacentColumns[2] == nullptr ? nullptr : adjacentColumns[2]->getChunk(chunkIndex);   // Front
     adjacentChunks[5] = adjacentColumns[3] == nullptr ? nullptr : adjacentColumns[3]->getChunk(chunkIndex);   // Back
 
-    m_chunks[chunkIndex].generateMesh({m_position.x, chunkIndex, m_position.y}, adjacentChunks);
+    m_chunks[chunkIndex].generateMesh({columnPos.x, chunkIndex, columnPos.y}, adjacentChunks);
 }
 
-void ChunkColumn::generateMeshes()
+void ChunkColumn::generateMeshes(const glm::ivec2 &columnPos)
 {
     for (int i = m_chunks.size() - 1; i >= 0; i--)
-        generateMeshesFor(i);
+        generateMeshesFor(i, columnPos);
 }
 
 // private:

@@ -26,6 +26,8 @@ public:
   void fillColumnWith(const glm::uvec2 &column, const Block &with);
 
   void generateMesh(const glm::ivec3 &forPosition, const std::array<const Chunk *, 6> &neighboors);
+  RenderData getRenderData() noexcept;
+
   inline ChunkMesh &getMesh() noexcept { return m_mesh; }
 
 private:

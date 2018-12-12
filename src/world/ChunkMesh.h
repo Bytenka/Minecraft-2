@@ -8,6 +8,12 @@
 
 namespace tk
 {
+struct RenderData
+{
+  GLuint vao = 0;
+  unsigned nbVertices = 0;
+};
+
 class ChunkMesh
 {
 public:

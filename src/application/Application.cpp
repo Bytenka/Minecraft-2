@@ -12,6 +12,7 @@
 #include "../world/ChunkMesh.h"
 #include "../world/Chunk.h"
 #include "../world/ChunkColumn.h"
+#include "../world/World.h"
 #include "../debug.h"
 #include "../graphics/TextureAtlas.h"
 #include <glm/glm.hpp>
@@ -66,46 +67,13 @@ void Application::runLoop()
 
     TextureAtlas::getInstance().load("res/textures/blocks/atlas.png");
 
-    Camera cam({0, 0, -5}, {1, 0, 0});
+    Camera cam({0, 0, -1}, {0, 0, 0});
 
-    Chunk c(Blocks::grass);
-    c.fillColumnWith({5, 5}, Blocks::diamond_ore);
+    World w;
 
-    Chunk c2(Blocks::stone);
-    c2.fillLayerWith(5, Blocks::obsidian);
-
-    c.generateMesh({0, 0, 1}, {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr});
-    c2.generateMesh({1, 0, 0}, {nullptr, &c, nullptr, nullptr, nullptr, nullptr});
-
-    ChunkColumn cl({-1, 0});
-    cl.generateMeshes();
-
-    /*
-    GLfloat data[] = {
-        -0.5f, -0.5f, 0.0f,
-        0.5f, -0.5f, 0.0f,
-        -0.5f, 0.5f, 0.0f};
-
-    GLuint indices[] = {
-        0, 1, 2};
-
-    GLuint vao, vbo, ebo;
-    glGenVertexArrays(1, &vao);
-    glGenBuffers(1, &vbo);
-    glGenBuffers(1, &ebo);
-
-    glBindVertexArray(vao);
-
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(data), data, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 3, (void *)0);
-    glEnableVertexAttribArray(0);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-	glBindVertexArray(0);
-    */
+    for (int x = 0; x < 5; x++)
+        for (int z = 0; z < 5; z++)
+            w.loadColumn({x, z});
 
     m_windows[0].second->unbindContext();
 
@@ -135,29 +103,13 @@ void Application::runLoop()
             // @DEBUG
             poolKeys(currentWindow->getGLFWwindow(), cam);
 
-            glBindVertexArray(c.getMesh().getVAO());
-            glDrawElements(GL_TRIANGLES, c.getMesh().getVerticesCount(), GL_UNSIGNED_INT, (void *)0);
-            glBindVertexArray(0);
-
-            glBindVertexArray(c2.getMesh().getVAO());
-            glDrawElements(GL_TRIANGLES, c2.getMesh().getVerticesCount(), GL_UNSIGNED_INT, (void *)0);
-            glBindVertexArray(0);
-
-            for (unsigned i = 0; i < CHUNK_COL_HEIGHT; i++)
+            auto test = w.getRenderData();
+            for (const auto &d : test)
             {
-                glBindVertexArray(cl.getChunk(i)->getMesh().getVAO());
-                glDrawElements(GL_TRIANGLES, cl.getChunk(i)->getMesh().getVerticesCount(), GL_UNSIGNED_INT, (void *)0);
+                glBindVertexArray(d.vao);
+                glDrawElements(GL_TRIANGLES, d.nbVertices, GL_UNSIGNED_INT, (void *)0);
                 glBindVertexArray(0);
             }
-
-            /*
-            ChunkMesh &oui = cl.getChunk(0)->getMesh();
-            GLuint a = oui.getVAO();
-            glBindVertexArray(oui.getVAO());
-            glDrawElements(GL_TRIANGLES, oui.getVerticesCount(), GL_UNSIGNED_INT, (void *)0);
-            glBindVertexArray(0);*/
-
-            LOG_TRACE("{}, {}, {}", cam.getPosition().x, cam.getPosition().y, cam.getPosition().z);
 
             currentWindow->draw();
             currentWindow->unbindContext();

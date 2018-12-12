@@ -127,6 +127,14 @@ void Chunk::generateMesh(const glm::ivec3 &forPosition, const std::array<const C
     LOG_TRACE("Built mesh for chunk at {}, {}, {}. Build time: {}ms", forPosition.x, forPosition.y, forPosition.z, (glfwGetTime() - buildTimeStart) * 1000);
 }
 
+RenderData Chunk::getRenderData() noexcept
+{
+    RenderData toReturn;
+    toReturn.vao = m_mesh.getVAO();
+    toReturn.nbVertices = m_mesh.getVerticesCount();
+    return toReturn;
+}
+
 // private:
 
 const Block *Chunk::getBlockNeighboors(const glm::ivec3 &at, const std::array<const Chunk *, 6> &neighboors) const
