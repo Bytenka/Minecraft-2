@@ -13,9 +13,6 @@ ChunkColumn::ChunkColumn()
         s_borderChunk = std::make_unique<Chunk>(Blocks::_air); // _air specified for clarity
 
     adjacentColumns.fill(nullptr);
-
-    for (auto &c : m_chunks)
-        c.fillWith(Blocks::tnt);
 }
 
 ChunkColumn::~ChunkColumn()
@@ -58,6 +55,34 @@ std::vector<RenderData> ChunkColumn::getRenderData() noexcept
     }
 
     return toReturn;
+}
+
+void ChunkColumn::fillColumn(const glm::uvec2 &column, const Block &block)
+{
+    fillColumn(column, 0, CHUNK_COL_HEIGHT * CHUNK_SIZE - 1, block);
+}
+
+void ChunkColumn::fillColumn(const glm::uvec2 &column, unsigned from, unsigned to, const Block &block)
+{
+    if (column.x >= CHUNK_SIZE || column.y >= CHUNK_SIZE)
+        throw std::out_of_range("Position (" + std::to_string(column.x) + ", " + std::to_string(column.y) + ") is out of range");
+
+    if (from >= CHUNK_COL_HEIGHT * CHUNK_SIZE)
+        throw std::out_of_range("Starting point " + std::to_string(from) + " is out of range");
+
+    if (to >= CHUNK_COL_HEIGHT * CHUNK_SIZE)
+        throw std::out_of_range("Ending point " + std::to_string(to) + " is out of range");
+
+    for (; from <= to; from++)
+    {
+        Chunk &currentChunk = m_chunks[from / CHUNK_COL_HEIGHT];
+        currentChunk.setBlock({column.x, from % CHUNK_SIZE, column.y}, block);
+    }
+}
+
+void ChunkColumn::generateTerrain(const glm::ivec2 &forPosition) noexcept
+{
+    // @TODO
 }
 
 void ChunkColumn::generateMeshesFor(unsigned chunkIndex, const glm::ivec2 &columnPos)

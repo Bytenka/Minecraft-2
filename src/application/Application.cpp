@@ -55,78 +55,86 @@ Application::~Application()
 
 void Application::runLoop()
 {
-    m_windows[0].second->bindContext();
-
-    Shader s("res/shaders/default3D.vert", "res/shaders/default3D.frag");
-    s.setUniform1i("textu", 0);
-
-    glm::mat4 model = glm::mat4(1.0f);
-    s.setUniformMatrix4fv("modelMat", model);
-
-    glm::mat4 projection = glm::perspective(glm::radians(90.0f), 1280.0f / 720.0f, 0.1f, 500.0f);
-    s.setUniformMatrix4fv("projectionMat", projection);
-
-    TextureAtlas::getInstance().init("res/textures/blocks/atlas.png");
-
-    Camera cam({0, 0, -1}, {0, 0, 0});
-
-    World w;
-    glm::dvec3 pos(0);
-
-    for (int x = 0; x < 5; x++)
-        for (int z = 0; z < 5; z++)
-            w.loadColumn({x, z});
-
-    bool appShouldTerminate = m_windows.empty();
-    std::thread updateThread(World::updateLoop, std::ref(w), std::ref(pos), std::ref(appShouldTerminate));
-
-    while (!appShouldTerminate)
+    try
     {
-        for (int i = m_windows.size() - 1; i >= 0; i--)
+        m_windows[0].second->bindContext();
+
+        Shader s("res/shaders/default3D.vert", "res/shaders/default3D.frag");
+        s.setUniform1i("textu", 0);
+
+        glm::mat4 model = glm::mat4(1.0f);
+        s.setUniformMatrix4fv("modelMat", model);
+
+        glm::mat4 projection = glm::perspective(glm::radians(90.0f), 1280.0f / 720.0f, 0.1f, 500.0f);
+        s.setUniformMatrix4fv("projectionMat", projection);
+
+        TextureAtlas::getInstance().init("res/textures/blocks/atlas.png");
+
+        Camera cam({0, 270, -1}, {0, 0, 0});
+
+        World w;
+        glm::dvec3 pos(0);
+
+        for (int x = 0; x < 5; x++)
+            for (int z = 0; z < 5; z++)
+                w.loadColumn({x, z});
+
+        bool appShouldTerminate = m_windows.empty();
+        std::thread updateThread(World::updateLoop, std::ref(w), std::ref(pos), std::ref(appShouldTerminate));
+
+        while (!appShouldTerminate)
         {
-            auto &currentPair = m_windows[i];
-            auto &currentWindow = currentPair.second;
-
-            //LOG_INFO("{}", (void*)glfwGetCurrentContext());
-
-            currentWindow->bindContext();
-
-            //LOG_INFO("{}", (void*)glfwGetCurrentContext());
-
-            s.enable();
-
-            glm::dvec2 rot = currentWindow->getCursorTravel() * 0.1;
-            cam.rotate(rot.y, rot.x);
-            s.setUniformMatrix4fv("viewMat", cam.getView());
-
-            currentWindow->update();
-            currentWindow->clear();
-
-            // @DEBUG
-            poolKeys(currentWindow->getGLFWwindow(), cam);
-
-            auto test = w.getRenderData();
-            for (const auto &d : test)
+            for (int i = m_windows.size() - 1; i >= 0; i--)
             {
-                glBindVertexArray(d.vao);
-                glDrawElements(GL_TRIANGLES, d.nbVertices, GL_UNSIGNED_INT, (void *)0);
-                glBindVertexArray(0);
-            }
+                auto &currentPair = m_windows[i];
+                auto &currentWindow = currentPair.second;
 
-            currentWindow->draw();
-            currentWindow->unbindContext();
+                //LOG_INFO("{}", (void*)glfwGetCurrentContext());
 
-            if (currentWindow->shouldClose())
-            {
-                if (currentPair.first == m_mainWindowUID)
-                    appShouldTerminate = true;
+                currentWindow->bindContext();
 
-                m_windows.erase(m_windows.begin() + i);
+                //LOG_INFO("{}", (void*)glfwGetCurrentContext());
+
+                s.enable();
+
+                glm::dvec2 rot = currentWindow->getCursorTravel() * 0.1;
+                cam.rotate(rot.y, rot.x);
+                s.setUniformMatrix4fv("viewMat", cam.getView());
+
+                currentWindow->update();
+                currentWindow->clear();
+
+                // @DEBUG
+                poolKeys(currentWindow->getGLFWwindow(), cam);
+
+                auto test = w.getRenderData();
+                for (const auto &d : test)
+                {
+                    glBindVertexArray(d.vao);
+                    glDrawElements(GL_TRIANGLES, d.nbVertices, GL_UNSIGNED_INT, (void *)0);
+                    glBindVertexArray(0);
+                }
+
+                currentWindow->draw();
+                currentWindow->unbindContext();
+
+                if (currentWindow->shouldClose())
+                {
+                    if (currentPair.first == m_mainWindowUID)
+                        appShouldTerminate = true;
+
+                    m_windows.erase(m_windows.begin() + i);
+                }
             }
         }
-    }
 
-    updateThread.join();
+        updateThread.join();
+    }
+    catch (RuntimeException &e)
+    {
+        LOG_ERROR("Exception caught: {}", e.what());
+        throw;
+    }
 }
 
 WindowUID Application::createWindow(const std::string &title, unsigned width, unsigned height)

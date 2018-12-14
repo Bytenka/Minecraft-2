@@ -31,8 +31,8 @@ public:
 private:
   void update(const glm::dvec3 &playerPos);
 
-  void poolLoad();
-  void poolUnload();
+  bool poolLoad();   // Returns true when something has been loaded, false otherwise
+  bool poolUnload(); // Returns true when something has been unloaded, false otherwise
   std::vector<WorldColumn>::iterator findColumn(const glm::ivec2 &at);
   void setNeighboors(WorldColumn *ofColumn, bool presenceStatus) noexcept;
 

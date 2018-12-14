@@ -22,7 +22,6 @@ void World::updateLoop(World &world, const glm::dvec3 &playerPos, bool &shouldSt
     while (!shouldStop)
     {
         world.update(playerPos);
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
 }
 
@@ -84,7 +83,13 @@ ChunkColumn *World::getColumn(const glm::ivec2 &at)
     auto it = findColumn(at);
 
     if (it == m_columns.end())
-        throw RuntimeException("Can't find column in list");
+    {
+        auto it2 = std::find(m_toLoadColumns.begin(), m_toLoadColumns.end(), at);
+        if (it2 != m_toLoadColumns.end())
+            throw RuntimeException("Column is still waiting to be loaded");
+        else
+            throw RuntimeException("Can't find column in list");
+    }
 
     return it->second.get();
 }
@@ -113,15 +118,20 @@ void World::update(const glm::dvec3 &playerPos)
 {
     m_mainMutex.lock();
 
-    poolLoad();
+    bool hasLoaded = poolLoad();
 
     m_mainMutex.unlock();
+
+    if (hasLoaded)
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    else
+        std::this_thread::sleep_for(std::chrono::seconds(1));
 }
 
-void World::poolLoad()
+bool World::poolLoad()
 {
     if (m_toLoadColumns.empty())
-        return;
+        return false;
 
     auto current = m_toLoadColumns.front();
     auto newPair = std::make_pair(current, std::make_unique<ChunkColumn>());
@@ -135,12 +145,13 @@ void World::poolLoad()
 
     m_toLoadColumns.pop_front();
     LOG_TRACE("Fully loaded column {}, {}", current.x, current.y);
+    return true;
 }
 
-void World::poolUnload()
+bool World::poolUnload()
 {
     if (m_toUnloadColumns.empty())
-        return;
+        return false;
 
     auto current = m_toUnloadColumns.front();
     auto it = findColumn(current);
@@ -149,6 +160,7 @@ void World::poolUnload()
     m_toUnloadColumns.pop_front();
 
     LOG_TRACE("Fully unloaded column {}, {}", current.x, current.y);
+    return true;
 }
 
 std::vector<WorldColumn>::iterator World::findColumn(const glm::ivec2 &at)

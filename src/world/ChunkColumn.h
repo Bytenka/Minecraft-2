@@ -21,6 +21,11 @@ public:
   Chunk *getChunk(unsigned atIndex);
   std::vector<RenderData> getRenderData() noexcept;
 
+  void generateTerrain(const glm::ivec2 &forPosition) noexcept;
+
+  void fillColumn(const glm::uvec2 &column, const Block &block);
+  void fillColumn(const glm::uvec2 &column, unsigned from, unsigned to, const Block &block);
+
   void generateMeshesFor(unsigned chunkIndex, const glm::ivec2 &columnPos);
   void generateMeshes(const glm::ivec2 &columnPos);
 
