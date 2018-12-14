@@ -17,7 +17,7 @@ TextureAtlas::~TextureAtlas()
 
 // public:
 
-void TextureAtlas::load(const std::string &file)
+void TextureAtlas::init(const std::string &file)
 {
     if (m_isLoaded)
         throw RuntimeException("Texture atlas is already loaded");
@@ -25,6 +25,7 @@ void TextureAtlas::load(const std::string &file)
     m_atlasImg = std::make_unique<Image>(file);
 
     setupCoordinates();
+    pushGL();
     m_atlasPath = file;
     m_isLoaded = true;
 }
@@ -32,7 +33,7 @@ void TextureAtlas::load(const std::string &file)
 void TextureAtlas::reload()
 {
     release();
-    load(m_atlasPath);
+    init(m_atlasPath);
 }
 
 void TextureAtlas::release() noexcept
@@ -50,9 +51,6 @@ std::array<GLfloat, 8> TextureAtlas::getTextureCoordinates(const std::string &te
 
     if (!m_isLoaded)
         throw RuntimeException("Texture atlas is not loaded");
-
-    if (!m_isUsable)
-        pushGL();
 
     auto it = m_atlas.find(textureName);
 
@@ -122,9 +120,6 @@ std::array<GLfloat, 8> TextureAtlas::toGLCoordinates(const TextureData &data) co
 
 void TextureAtlas::pushGL()
 {
-    if (m_isUsable)
-        throw std::logic_error("Data is already on the GPU");
-
     GLuint id;
     glGenTextures(1, &id);
 
@@ -151,7 +146,6 @@ void TextureAtlas::pushGL()
     glGenerateMipmap(GL_TEXTURE_2D);
 
     m_atlasID = id;
-    m_isUsable = true;
 }
 
 void TextureAtlas::deleteGL() noexcept
@@ -161,8 +155,6 @@ void TextureAtlas::deleteGL() noexcept
         glDeleteTextures(1, &m_atlasID);
         m_atlasID = 0;
     }
-
-    m_isUsable = false;
 }
 
 } // namespace tk

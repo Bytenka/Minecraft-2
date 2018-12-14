@@ -35,7 +35,7 @@ class TextureAtlas
         return instance;
     }
 
-    void load(const std::string &file);
+    void init(const std::string &file);
     void reload();
     void release() noexcept;
     std::array<GLfloat, 8> getTextureCoordinates(const std::string &textureName);
@@ -57,7 +57,6 @@ class TextureAtlas
     std::map<std::string, TextureData> m_atlas;
 
     bool m_isLoaded = false;
-    bool m_isUsable = false; // Flag for OpenGL validity of the texture
     std::string m_defaultTextureName = "default_texture";
     GLuint m_atlasID = 0;
 

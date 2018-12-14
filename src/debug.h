@@ -1,7 +1,7 @@
 #pragma once
 
 #include <GLFW/glfw3.h>
-#include <graphics/Camera.h>
+#include "graphics/Camera.h"
 
 namespace tk
 {

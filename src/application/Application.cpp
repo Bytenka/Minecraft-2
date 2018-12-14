@@ -66,7 +66,7 @@ void Application::runLoop()
     glm::mat4 projection = glm::perspective(glm::radians(90.0f), 1280.0f / 720.0f, 0.1f, 500.0f);
     s.setUniformMatrix4fv("projectionMat", projection);
 
-    TextureAtlas::getInstance().load("res/textures/blocks/atlas.png");
+    TextureAtlas::getInstance().init("res/textures/blocks/atlas.png");
 
     Camera cam({0, 0, -1}, {0, 0, 0});
 
