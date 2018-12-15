@@ -92,8 +92,6 @@ void Chunk::fillColumnWith(const glm::uvec2 &column, const Block &with)
 
 void Chunk::generateMesh(const glm::ivec3 &forPosition, const std::array<const Chunk *, 6> &neighboors)
 {
-    double buildTimeStart = glfwGetTime();
-
     m_mesh.clear();
 
     for (unsigned x = 0; x < CHUNK_SIZE; x++)

@@ -3,9 +3,13 @@
 
 #include "../utils/Exceptions.h"
 
+#include <GLFW/glfw3.h>
+
 #include <exception>
 #include <algorithm>
 #include <chrono>
+
+double poolTime = 0;
 
 namespace tk
 {
@@ -78,6 +82,34 @@ void World::unloadColumn(const glm::ivec2 &at)
     m_toUnloadColumns.push_back(at);
 }
 
+bool World::canLoadColumn(const glm::ivec2 &at) const
+{
+    auto it1 = std::find(m_toLoadColumns.begin(), m_toLoadColumns.end(), at);
+    bool can1 = it1 == m_toLoadColumns.end();
+
+    if (!can1)
+        return false;
+
+    auto it2 = std::find(m_toUnloadColumns.begin(), m_toUnloadColumns.end(), at);
+    bool can2 = it2 == m_toUnloadColumns.end();
+
+    if (!can2)
+        return false;
+
+    auto it3 = std::find_if(
+        m_columns.begin(),
+        m_columns.end(),
+        [&](const WorldColumn &current) {
+            return current.first == at;
+        });
+    bool can3 = it3 == m_columns.end();
+
+    if (!can3)
+        return false;
+
+    return true;
+}
+
 ChunkColumn *World::getColumn(const glm::ivec2 &at)
 {
     auto it = findColumn(at);
@@ -116,6 +148,18 @@ const std::vector<RenderData> &World::getRenderData() noexcept
 
 void World::update(const glm::dvec3 &playerPos)
 {
+    if (glfwGetTime() - poolTime > 3)
+    {
+        for (int x = playerPos.x / CHUNK_SIZE - 5; x < playerPos.x / CHUNK_SIZE + 5; x++)
+            for (int z = playerPos.z / CHUNK_SIZE - 5; z < playerPos.z / CHUNK_SIZE + 5; z++)
+            {
+                glm::ivec2 at = {x, z};
+                if (canLoadColumn(at))
+                    loadColumn(at);
+            }
+        poolTime = glfwGetTime();
+    }
+
     m_mainMutex.lock();
 
     bool hasLoaded = poolLoad();
@@ -133,18 +177,22 @@ bool World::poolLoad()
     if (m_toLoadColumns.empty())
         return false;
 
+    double time = glfwGetTime();
+
     auto current = m_toLoadColumns.front();
     auto newPair = std::make_pair(current, std::make_unique<ChunkColumn>());
     // Add and get last
     m_columns.push_back(std::move(newPair));
     auto &last = m_columns.back();
 
+    last.second->generateTerrain(last.first);
+
     setNeighboors(&last, true);
     rebuildNeighboors(&last);
     last.second->generateMeshes(current);
 
     m_toLoadColumns.pop_front();
-    LOG_TRACE("Fully loaded column {}, {}", current.x, current.y);
+    LOG_TRACE("Fully loaded column {}, {} ({}ms)", current.x, current.y, (glfwGetTime() - time) * 1000);
     return true;
 }
 

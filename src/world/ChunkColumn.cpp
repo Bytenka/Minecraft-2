@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "ChunkColumn.h"
 
+#include "TerrainGenerator.h"
+
 #include <exception>
 
 namespace tk
@@ -82,7 +84,14 @@ void ChunkColumn::fillColumn(const glm::uvec2 &column, unsigned from, unsigned t
 
 void ChunkColumn::generateTerrain(const glm::ivec2 &forPosition) noexcept
 {
-    // @TODO
+    TerrainGenerator &tg = TerrainGenerator::getInstance();
+
+    for (int x = 0; x < CHUNK_SIZE; x++)
+        for (int z = 0; z < CHUNK_SIZE; z++)
+        {
+            glm::ivec2 localPos = {x, z};
+            fillColumn(localPos, 0, tg.getHeight(forPosition * CHUNK_SIZE + localPos) / 2 + 127, Blocks::grass);
+        }
 }
 
 void ChunkColumn::generateMeshesFor(unsigned chunkIndex, const glm::ivec2 &columnPos)

@@ -75,9 +75,9 @@ void Application::runLoop()
         World w;
         glm::dvec3 pos(0);
 
-        for (int x = 0; x < 5; x++)
-            for (int z = 0; z < 5; z++)
-                w.loadColumn({x, z});
+        //for (int x = -5; x < 5; x++)
+        //    for (int z = -5; z < 5; z++)
+        //        w.loadColumn({x, z});
 
         bool appShouldTerminate = m_windows.empty();
         std::thread updateThread(World::updateLoop, std::ref(w), std::ref(pos), std::ref(appShouldTerminate));
@@ -98,6 +98,7 @@ void Application::runLoop()
                 s.enable();
 
                 glm::dvec2 rot = currentWindow->getCursorTravel() * 0.1;
+                pos = cam.getPosition();
                 cam.rotate(rot.y, rot.x);
                 s.setUniformMatrix4fv("viewMat", cam.getView());
 

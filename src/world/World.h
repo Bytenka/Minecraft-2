@@ -22,6 +22,7 @@ public:
 
   void loadColumn(const glm::ivec2 &at);
   void unloadColumn(const glm::ivec2 &at);
+  bool canLoadColumn(const glm::ivec2 &at) const;
 
   ChunkColumn *getColumn(const glm::ivec2 &at);
   const std::vector<RenderData> &getRenderData() noexcept;
