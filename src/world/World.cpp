@@ -30,39 +30,44 @@ void World::updateLoop(World &world, const glm::dvec3 &playerPos, bool &shouldSt
 // public:
 void World::loadColumn(const glm::ivec2 &at)
 {
+	m_mainMutex.lock();
+
     auto it = std::find_if(
         m_columns.begin(),
         m_columns.end(),
         [&](const WorldColumn &current) {
             return current.first == at;
         });
-
     if (it != m_columns.end())
         throw std::invalid_argument("Column is already loaded");
 
     if (std::find(m_toLoadColumns.begin(), m_toLoadColumns.end(), at) != m_toLoadColumns.end())
         throw std::invalid_argument("Column is already queued to be loaded");
 
-    auto it2 = std::find(m_toUnloadColumns.begin(), m_toUnloadColumns.end(), at);
+	auto it2 = std::find(m_toUnloadColumns.begin(), m_toUnloadColumns.end(), at);
 
     if (it2 != m_toUnloadColumns.end())
     {
-        m_toUnloadColumns.erase(it2);
+		m_toUnloadColumns.erase(it2);
+		m_mainMutex.unlock();
         return;
     }
 
     m_toLoadColumns.push_back(at);
+
+	m_mainMutex.unlock();
 }
 
 void World::unloadColumn(const glm::ivec2 &at)
 {
+	m_mainMutex.lock();
+
     auto it = std::find_if(
         m_columns.begin(),
         m_columns.end(),
         [&](const WorldColumn &current) {
             return current.first == at;
         });
-
     if (it == m_columns.end())
         throw std::invalid_argument("Column is already unloaded");
 
@@ -74,24 +79,23 @@ void World::unloadColumn(const glm::ivec2 &at)
     if (it2 != m_toLoadColumns.end())
     {
         m_toLoadColumns.erase(it2);
+		m_mainMutex.unlock();
         return;
     }
 
     m_toUnloadColumns.push_back(at);
+
+	m_mainMutex.unlock();
 }
 
 bool World::canLoadColumn(const glm::ivec2 &at) const
 {
     auto it1 = std::find(m_toLoadColumns.begin(), m_toLoadColumns.end(), at);
-    bool can1 = it1 == m_toLoadColumns.end();
-
-    if (!can1)
+    if (it1 != m_toLoadColumns.end())
         return false;
 
     auto it2 = std::find(m_toUnloadColumns.begin(), m_toUnloadColumns.end(), at);
-    bool can2 = it2 == m_toUnloadColumns.end();
-
-    if (!can2)
+    if (it2 != m_toUnloadColumns.end())
         return false;
 
     auto it3 = std::find_if(
@@ -100,12 +104,34 @@ bool World::canLoadColumn(const glm::ivec2 &at) const
         [&](const WorldColumn &current) {
             return current.first == at;
         });
-    bool can3 = it3 == m_columns.end();
 
-    if (!can3)
+    if (it3 != m_columns.end())
         return false;
 
     return true;
+}
+
+bool World::canUnloadColumn(const glm::ivec2 &at) const
+{
+	auto it1 = std::find(m_toLoadColumns.begin(), m_toLoadColumns.end(), at);
+	if (it1 != m_toLoadColumns.end())
+		return false;
+
+	auto it2 = std::find(m_toUnloadColumns.begin(), m_toUnloadColumns.end(), at);
+	if (it2 != m_toUnloadColumns.end())
+		return false;
+
+	auto it3 = std::find_if(
+		m_columns.begin(),
+		m_columns.end(),
+		[&](const WorldColumn &current) {
+		return current.first == at;
+	});
+
+	if (it3 == m_columns.end())
+		return false;
+
+	return true;
 }
 
 ChunkColumn *World::getColumn(const glm::ivec2 &at)
@@ -130,6 +156,9 @@ const std::vector<RenderData> &World::getRenderData() noexcept
     {
         poolUnload();
 
+		//if (m_toLoadColumns.empty())
+			//m_columns.clear();
+
         m_drawCache.clear();
         for (auto &c : m_columns)
         {
@@ -146,24 +175,37 @@ const std::vector<RenderData> &World::getRenderData() noexcept
 
 void World::update(const glm::dvec3 &playerPos)
 {
-    for (int x = playerPos.x / CHUNK_SIZE - 15; x < playerPos.x / CHUNK_SIZE + 15; x++)
-        for (int z = playerPos.z / CHUNK_SIZE - 15; z < playerPos.z / CHUNK_SIZE + 15; z++)
-        {
-            glm::ivec2 at = {x, z};
-            if (canLoadColumn(at))
-                loadColumn(at);
-        }
+	// Load
+	for (int x = playerPos.x / CHUNK_SIZE - 3; x < playerPos.x / CHUNK_SIZE + 3; x++)
+		for (int z = playerPos.z / CHUNK_SIZE - 3; z < playerPos.z / CHUNK_SIZE + 3; z++)
+		{
+			glm::ivec2 at = { x, z };
+			if (canLoadColumn(at))
+				loadColumn(at);
+		}
 
-    m_mainMutex.lock();
+	// Unload
+	for (auto &c : m_columns)
+	{
+		glm::fvec2 playPosChunks = glm::ivec2(playerPos.x / CHUNK_SIZE, playerPos.z / CHUNK_SIZE);
+		glm::fvec2 colPos = (c.first);
+		if (glm::distance(colPos, playPosChunks) > 7)
+		{
+			if (canUnloadColumn(c.first))
+				unloadColumn(c.first);
+		}
+	}
 
-    bool hasLoaded = poolLoad();
+	m_mainMutex.lock();
 
-    m_mainMutex.unlock();
+	bool hasLoaded = poolLoad();
 
-    if (hasLoaded)
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
-    else
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+	m_mainMutex.unlock();
+
+	if (hasLoaded)
+		std::this_thread::sleep_for(std::chrono::milliseconds(1));
+	else
+		std::this_thread::sleep_for(std::chrono::seconds(1));
 }
 
 bool World::poolLoad()
@@ -192,16 +234,35 @@ bool World::poolLoad()
 
 bool World::poolUnload()
 {
+	// Chunks should NEVER be unloaded by an other thread than the main thread
+	// This is because ChunkMeshes require a valid OpenGL context to work properly
+	// and not providing one would cause a silent memory leak
+
+	if (glfwGetCurrentContext() == NULL)
+	{
+		LOG_CRITICAL("Memory leak: calling {} function from a thread with no OpenGL context", __FUNCTION__);
+		throw RuntimeException("Calling unload function on thread that does not own the OpenGL context");
+	} // Rudimentary safety guard to check that
+
     if (m_toUnloadColumns.empty())
         return false;
 
-    auto current = m_toUnloadColumns.front();
-    auto it = findColumn(current);
+	glm::ivec2 at = m_toUnloadColumns.front();
 
-    m_columns.erase(it);
-    m_toUnloadColumns.pop_front();
+	auto it = std::find_if(
+		m_columns.begin(),
+		m_columns.end(),
+		[&](const WorldColumn &current) {
+		return current.first == at;
+	});
 
-    LOG_TRACE("Fully unloaded column {}, {}", current.x, current.y);
+	if (it == m_columns.end())
+		throw RuntimeException("Column at (" + std::to_string(at.x) + ", " + std::to_string(at.y) + ") is not in list");
+
+	m_columns.erase(it);
+	m_toUnloadColumns.pop_front();
+
+    LOG_TRACE("Fully unloaded column {}, {}", at.x, at.y);
     return true;
 }
 
