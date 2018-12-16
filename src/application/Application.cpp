@@ -107,6 +107,7 @@ void Application::runLoop()
 
                 player.update(*currentWindow);
                 s.setUniformMatrix4fv("viewMat", player.getCamera().getView());
+				pos = player.getCamera().getPosition();
 
                 currentWindow->update();
                 currentWindow->clear();
@@ -211,19 +212,6 @@ void Application::updateWindowSize(GLFWwindow *window, int width, int height)
     catch (RuntimeException &e)
     {
         LOG_ERROR("Could not update window size : {}", e.what());
-    }
-}
-
-void Application::updateWindowCursorPosition(GLFWwindow *window, double xpos, double ypos)
-{
-    try
-    {
-        auto it = getWindowFromGLFWwindow(window);
-        it->second->updateCursorPosition(xpos, ypos);
-    }
-    catch (RuntimeException &e)
-    {
-        LOG_ERROR("Could not update cursor position : {}", e.what());
     }
 }
 

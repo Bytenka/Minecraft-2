@@ -22,7 +22,6 @@ public:
   void clear() const noexcept;
   void setIcon(const std::string &imgPath);
   void updateSize(int width, int height) noexcept;
-  void updateCursorPosition(double xpos, double ypos) noexcept;
   void useMouseAsInput(bool value) noexcept;
 
   inline unsigned getWidth() const noexcept { return m_width; }
@@ -48,5 +47,5 @@ public:
 
 // Callbacks
 void framebuffer_size_callback(GLFWwindow *window, int width, int height) noexcept;
-void cursor_pos_callback(GLFWwindow *window, double xpos, double ypos) noexcept;
+//void cursor_pos_callback(GLFWwindow *window, double xpos, double ypos) noexcept;
 } // namespace tk

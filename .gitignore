@@ -1,8 +1,14 @@
 # Dirs
+
+# For VSCode
 .vscode/
 bin/
 obj/
+
+# For VS
 .vs/
+Debug/
+Release/
 
 
 # Files

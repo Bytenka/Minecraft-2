@@ -55,6 +55,8 @@ void Player::poolMouse(const Window &window) noexcept
 {
     glm::dvec2 travel = window.getCursorTravel() * m_mouseSensitivity;
     m_camera.rotate({travel.y, travel.x});
+
+	GLFWwindow* w = window.getGLFWwindow();
 }
 
 } // namespace tk

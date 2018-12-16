@@ -30,7 +30,6 @@ public:
   Window *getInternalWindow(WindowUID uid) noexcept;
 
   void updateWindowSize(GLFWwindow *window, int width, int height);
-  void updateWindowCursorPosition(GLFWwindow *window, double xpos, double ypos);
 
   inline void setMainWindow(WindowUID uid) noexcept { m_mainWindowUID = uid; }
 

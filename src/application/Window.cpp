@@ -24,7 +24,6 @@ Window::Window(const std::string &title, unsigned width, unsigned height)
 
     glfwSwapInterval(1);
     glfwSetFramebufferSizeCallback(newWindow, framebuffer_size_callback);
-    glfwSetCursorPosCallback(newWindow, cursor_pos_callback);
     // @TODO glfwSetWindowFocusCallback()
 
     // Setting up OpenGL. Functions are safe to call in that configuration
@@ -72,8 +71,14 @@ void Window::draw() const noexcept
 
 void Window::update() noexcept
 {
-    m_cursorTravel = glm::dvec2(0);
     glfwPollEvents();
+
+	m_cursorTravel = glm::dvec2(0);
+	if (m_mouseIsInput)
+	{
+		glfwGetCursorPos(m_glfwWindow, &m_cursorTravel.x, &m_cursorTravel.y);
+		glfwSetCursorPos(m_glfwWindow, 0, 0); // Because GLFW won't do it for us...
+	}
 }
 
 void Window::setClearColor(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha) const noexcept
@@ -116,26 +121,12 @@ void Window::updateSize(int width, int height) noexcept
     glViewport(0, 0, width, height);
 }
 
-void Window::updateCursorPosition(double xpos, double ypos) noexcept
-{
-    glm::dvec2 newPos = {xpos, ypos};
-    m_cursorTravel = newPos - m_cursorPos;
-
-    if (m_mouseIsInput)
-    {
-        newPos = {m_width / 2.0, m_height / 2.0};
-        glfwSetCursorPos(m_glfwWindow, newPos.x, newPos.y);
-    }
-
-    m_cursorPos = newPos;
-}
-
 void Window::useMouseAsInput(bool value) noexcept
 {
     if (value)
     {
-        //glfwSetInputMode(m_glfwWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-        updateCursorPosition(m_width / 2.0, m_height / 2.0);
+        glfwSetInputMode(m_glfwWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        //updateCursorPosition(m_width / 2.0, m_height / 2.0);
     }
     else
     {
@@ -154,8 +145,4 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height) noexce
         Application::getInstance().updateWindowSize(window, width, height);
 }
 
-void cursor_pos_callback(GLFWwindow *window, double xpos, double ypos) noexcept
-{
-    Application::getInstance().updateWindowCursorPosition(window, xpos, ypos);
-}
 } // namespace tk
