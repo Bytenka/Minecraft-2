@@ -9,8 +9,6 @@
 #include <algorithm>
 #include <chrono>
 
-double poolTime = 0;
-
 namespace tk
 {
 World::World()
@@ -148,17 +146,13 @@ const std::vector<RenderData> &World::getRenderData() noexcept
 
 void World::update(const glm::dvec3 &playerPos)
 {
-    if (glfwGetTime() - poolTime > 3)
-    {
-        for (int x = playerPos.x / CHUNK_SIZE - 5; x < playerPos.x / CHUNK_SIZE + 5; x++)
-            for (int z = playerPos.z / CHUNK_SIZE - 5; z < playerPos.z / CHUNK_SIZE + 5; z++)
-            {
-                glm::ivec2 at = {x, z};
-                if (canLoadColumn(at))
-                    loadColumn(at);
-            }
-        poolTime = glfwGetTime();
-    }
+    for (int x = playerPos.x / CHUNK_SIZE - 15; x < playerPos.x / CHUNK_SIZE + 15; x++)
+        for (int z = playerPos.z / CHUNK_SIZE - 15; z < playerPos.z / CHUNK_SIZE + 15; z++)
+        {
+            glm::ivec2 at = {x, z};
+            if (canLoadColumn(at))
+                loadColumn(at);
+        }
 
     m_mainMutex.lock();
 

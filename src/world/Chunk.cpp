@@ -8,7 +8,7 @@
 
 #include <GLFW/glfw3.h>
 #ifdef DEBUG
-#define BLOCK_IF_VOID _air
+#define BLOCK_IF_VOID _opaque
 #else
 #define BLOCK_IF_VOID _opaque
 #endif

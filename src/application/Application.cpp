@@ -13,6 +13,7 @@
 #include "../world/Chunk.h"
 #include "../world/ChunkColumn.h"
 #include "../world/World.h"
+#include "../entities/Player.h"
 #include "../debug.h"
 #include "../graphics/TextureAtlas.h"
 #include <glm/glm.hpp>
@@ -70,7 +71,7 @@ void Application::runLoop()
 
         TextureAtlas::getInstance().init("res/textures/blocks/atlas.png");
 
-        Camera cam({0, 270, -1}, {0, 0, 0});
+        Player player({0, 270, 0}, {-1, 0, 0});
 
         World w;
         glm::dvec3 pos(0);
@@ -97,16 +98,21 @@ void Application::runLoop()
 
                 s.enable();
 
+                /*
                 glm::dvec2 rot = currentWindow->getCursorTravel() * 0.1;
                 pos = cam.getPosition();
                 cam.rotate(rot.y, rot.x);
                 s.setUniformMatrix4fv("viewMat", cam.getView());
+                */
+
+                player.update(*currentWindow);
+                s.setUniformMatrix4fv("viewMat", player.getCamera().getView());
 
                 currentWindow->update();
                 currentWindow->clear();
 
                 // @DEBUG
-                poolKeys(currentWindow->getGLFWwindow(), cam);
+                //poolKeys(currentWindow->getGLFWwindow(), cam);
 
                 auto test = w.getRenderData();
                 for (const auto &d : test)
