@@ -94,18 +94,14 @@ bool World::canLoadColumn(const glm::ivec2 &at) const
     if (it1 != m_toLoadColumns.end())
         return false;
 
-    auto it2 = std::find(m_toUnloadColumns.begin(), m_toUnloadColumns.end(), at);
-    if (it2 != m_toUnloadColumns.end())
-        return false;
-
-    auto it3 = std::find_if(
+    auto it2 = std::find_if(
         m_columns.begin(),
         m_columns.end(),
         [&](const WorldColumn &current) {
             return current.first == at;
         });
 
-    if (it3 != m_columns.end())
+    if (it2 != m_columns.end())
         return false;
 
     return true;
@@ -113,22 +109,18 @@ bool World::canLoadColumn(const glm::ivec2 &at) const
 
 bool World::canUnloadColumn(const glm::ivec2 &at) const
 {
-	auto it1 = std::find(m_toLoadColumns.begin(), m_toLoadColumns.end(), at);
-	if (it1 != m_toLoadColumns.end())
+	auto it1 = std::find(m_toUnloadColumns.begin(), m_toUnloadColumns.end(), at);
+	if (it1 != m_toUnloadColumns.end())
 		return false;
 
-	auto it2 = std::find(m_toUnloadColumns.begin(), m_toUnloadColumns.end(), at);
-	if (it2 != m_toUnloadColumns.end())
-		return false;
-
-	auto it3 = std::find_if(
+	auto it2 = std::find_if(
 		m_columns.begin(),
 		m_columns.end(),
 		[&](const WorldColumn &current) {
 		return current.first == at;
 	});
 
-	if (it3 == m_columns.end())
+	if (it2 == m_columns.end())
 		return false;
 
 	return true;
@@ -203,9 +195,9 @@ void World::update(const glm::dvec3 &playerPos)
 	m_mainMutex.unlock();
 
 	if (hasLoaded)
-		std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	else
-		std::this_thread::sleep_for(std::chrono::seconds(1));
+		std::this_thread::sleep_for(std::chrono::milliseconds(500));
 }
 
 bool World::poolLoad()
@@ -259,6 +251,7 @@ bool World::poolUnload()
 	if (it == m_columns.end())
 		throw RuntimeException("Column at (" + std::to_string(at.x) + ", " + std::to_string(at.y) + ") is not in list");
 
+	setNeighboors(&*it, false);
 	m_columns.erase(it);
 	m_toUnloadColumns.pop_front();
 
@@ -287,8 +280,6 @@ void World::setNeighboors(WorldColumn *ofColumn, bool presenceStatus) noexcept
 
     ChunkColumn *valueToSet = presenceStatus ? ofColumn->second.get() : nullptr;
 
-    if (presenceStatus)
-    {
         auto &pos = ofColumn->first;
 
         auto lambda = [&](const std::vector<WorldColumn>::iterator &it, ChunkColumn **toSet) {
@@ -300,7 +291,7 @@ void World::setNeighboors(WorldColumn *ofColumn, bool presenceStatus) noexcept
         lambda(findColumn({pos.x + 1, pos.y}), &right);
         lambda(findColumn({pos.x, pos.y + 1}), &front);
         lambda(findColumn({pos.x, pos.y - 1}), &back);
-    }
+    
 
     if (left)
         left->adjacentColumns[1] = valueToSet; // Set his right

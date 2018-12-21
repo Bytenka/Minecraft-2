@@ -30,16 +30,16 @@ void Player::poolKeys(const Window &window) noexcept
     GLFWwindow *w = window.getGLFWwindow();
 
     if (glfwGetKey(w, GLFW_KEY_W) == GLFW_PRESS)
-        m_camera.move(m_camera.getForward());
+        m_camera.move(m_camera.getForward()*2.0);
 
     if (glfwGetKey(w, GLFW_KEY_S) == GLFW_PRESS)
-        m_camera.move(-m_camera.getForward());
+        m_camera.move(-m_camera.getForward()*2.0);
 
     if (glfwGetKey(w, GLFW_KEY_A) == GLFW_PRESS)
-        m_camera.move(-m_camera.getRight());
+        m_camera.move(-m_camera.getRight()*2.0);
 
     if (glfwGetKey(w, GLFW_KEY_D) == GLFW_PRESS)
-        m_camera.move(m_camera.getRight());
+        m_camera.move(m_camera.getRight()*2.0);
 
     if (glfwGetKey(w, GLFW_KEY_SPACE) == GLFW_PRESS)
         m_camera.move({0, 1, 0});
