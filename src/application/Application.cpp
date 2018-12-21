@@ -107,13 +107,14 @@ void Application::runLoop()
 
                 player.update(*currentWindow);
                 s.setUniformMatrix4fv("viewMat", player.getCamera().getView());
-				pos = player.getCamera().getPosition();
+                pos = player.getCamera().getPosition();
 
                 currentWindow->update();
                 currentWindow->clear();
 
                 // @DEBUG
-                //poolKeys(currentWindow->getGLFWwindow(), cam);
+                if (poolKeys(currentWindow->getGLFWwindow()))
+                    ;
 
                 auto test = w.getRenderData();
                 for (const auto &d : test)
